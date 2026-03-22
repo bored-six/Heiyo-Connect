@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/tenant";
 import { redirect } from "next/navigation";
 import { TicketStatus, Priority } from "@prisma/client";
 import Link from "next/link";
+import { TicketEmptyState } from "@/components/tickets/empty-state";
 
 const PRIORITY_COLORS: Record<Priority, string> = {
   LOW: "bg-slate-100 text-slate-700",
@@ -90,15 +91,7 @@ export default async function DashboardPage() {
             </thead>
             <tbody className="divide-y">
               {tickets.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
-                    No tickets yet.{" "}
-                    <Link href="/dashboard/tickets/new" className="underline">
-                      Create the first one
-                    </Link>
-                    .
-                  </td>
-                </tr>
+                <TicketEmptyState />
               ) : (
                 tickets.map((ticket) => (
                   <tr key={ticket.id} className="hover:bg-muted/30 transition-colors">
