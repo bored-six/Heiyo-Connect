@@ -9,12 +9,12 @@ const OnboardingSchema = z.object({
   companyName: z.string().min(2, "Company name must be at least 2 characters"),
 })
 
-type OnboardingState = { error: string | null }
+type OnboardingState = { error: string | null } | null
 
 export async function createTenantAndUser(
   _prev: OnboardingState,
   formData: FormData
-): Promise<OnboardingState> {
+): Promise<{ error: string | null }> {
   const { userId } = await auth()
   if (!userId) redirect("/sign-in")
 

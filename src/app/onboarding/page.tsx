@@ -18,9 +18,7 @@ export default async function OnboardingPage() {
         <form
           action={async (formData) => {
             "use server"
-            await createTenantAndUser({
-              companyName: formData.get("companyName"),
-            })
+            await createTenantAndUser(null, formData)
           }}
           className="space-y-4"
         >
