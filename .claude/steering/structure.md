@@ -89,6 +89,12 @@ export async function POST(req: NextRequest) {
 }
 ```
 
+## Onboarding Exception
+
+`requireUser()` **cannot** be used in `src/actions/onboarding.ts` — it throws "User not found" because the user doesn't exist in the DB yet (onboarding creates them). Use `auth()` + `currentUser()` directly there only.
+
+The onboarding action also uses a `(prev, formData)` form-state signature instead of `ActionResult<T>` — this is intentional for use with `useActionState`.
+
 ## Tenant Isolation Pattern
 
 ```typescript
