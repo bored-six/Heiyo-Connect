@@ -24,7 +24,7 @@ export default async function DashboardPage() {
   try {
     user = await requireUser();
   } catch {
-    redirect("/sign-in");
+    redirect("/onboarding");
   }
 
   const tickets = await getTickets();
