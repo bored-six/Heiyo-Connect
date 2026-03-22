@@ -7,6 +7,56 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
 const prisma = new PrismaClient({ adapter })
 
 // ─────────────────────────────────────────────────────────────
+// CLERK USER MANAGEMENT
+// Uses the Clerk REST API directly — no extra SDK needed.
+// CLERK_SECRET_KEY is already in .env.
+// ─────────────────────────────────────────────────────────────
+
+const CLERK_API = "https://api.clerk.com/v1"
+const CLERK_HEADERS = {
+  Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+  "Content-Type": "application/json",
+}
+
+const DEMO_EMAIL = "demo@aura-logistics.com"
+const DEMO_PASSWORD = "HeiyoDemo2025!"
+
+async function getOrCreateClerkUser(email: string, password: string, firstName: string, lastName: string): Promise<string> {
+  // Check if the user already exists
+  const searchRes = await fetch(`${CLERK_API}/users?email_address=${encodeURIComponent(email)}`, {
+    headers: CLERK_HEADERS,
+  })
+  const existing = await searchRes.json() as Array<{ id: string }>
+
+  if (Array.isArray(existing) && existing.length > 0) {
+    console.log(`   Demo Clerk user already exists — reusing (${existing[0].id})`)
+    return existing[0].id
+  }
+
+  // Create the user
+  const createRes = await fetch(`${CLERK_API}/users`, {
+    method: "POST",
+    headers: CLERK_HEADERS,
+    body: JSON.stringify({
+      email_address: [email],
+      password,
+      first_name: firstName,
+      last_name: lastName,
+      skip_password_checks: false,
+    }),
+  })
+
+  if (!createRes.ok) {
+    const err = await createRes.json()
+    throw new Error(`Clerk user creation failed: ${JSON.stringify(err)}`)
+  }
+
+  const created = await createRes.json() as { id: string }
+  console.log(`   Created demo Clerk user: ${created.id}`)
+  return created.id
+}
+
+// ─────────────────────────────────────────────────────────────
 // SEED DATA
 // ─────────────────────────────────────────────────────────────
 
@@ -32,12 +82,13 @@ async function main() {
     },
   })
 
-  const demoClerkId = process.env.DEMO_CLERK_USER_ID ?? "demo_clerk_placeholder_set_env_var"
+  console.log("   Creating demo Clerk user (or reusing existing)...")
+  const demoClerkId = await getOrCreateClerkUser(DEMO_EMAIL, DEMO_PASSWORD, "Alex", "Rivera")
 
   const auraAgent = await prisma.user.create({
     data: {
       clerkId: demoClerkId,
-      email: "demo@aura-logistics.com",
+      email: DEMO_EMAIL,
       name: "Alex Rivera",
       role: Role.OWNER,
       tenantId: aura.id,
@@ -793,17 +844,13 @@ async function main() {
   const totalTickets = auraTickets.length + pixelTickets.length + greenTickets.length
 
   console.log(`\n✅ Seed complete!`)
-  console.log(`   Tenants:  3 (Aura Logistics, Pixel Stream, GreenLeaf Retail)`)
-  console.log(`   Tickets:  ${totalTickets}`)
+  console.log(`   Tenants:   3 (Aura Logistics, Pixel Stream, GreenLeaf Retail)`)
+  console.log(`   Tickets:   ${totalTickets}`)
   console.log(`   Customers: ${auraCustomers.length + 4 + 5}`)
-  console.log(`\n⚠️  DEMO LOGIN SETUP:`)
-  console.log(`   1. Go to clerk.com → your app → Users → Create user`)
-  console.log(`      Email: demo@aura-logistics.com`)
-  console.log(`      Password: (set a strong password)`)
-  console.log(`   2. Copy the User ID (starts with 'user_...')`)
-  console.log(`   3. Add to .env: DEMO_CLERK_USER_ID=user_xxxxxxxxxx`)
-  console.log(`   4. Re-run: pnpm db:seed`)
-  console.log(`   5. Set DEMO_CLERK_USER_ID in your Vercel/deployment env vars too`)
+  console.log(`\n🔑 Demo login ready:`)
+  console.log(`   Email:    ${DEMO_EMAIL}`)
+  console.log(`   Password: ${DEMO_PASSWORD}`)
+  console.log(`   Or just click "Try Demo" on the landing page — no password needed.`)
 }
 
 main()
