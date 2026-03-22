@@ -2,16 +2,36 @@
 
 # Heiyo-Connect — Claude Instructions
 
-## Before Starting Any Task — Ask First
+---
 
-Before writing a single line of code, ask the user:
+## ⛔ HARD GATES — THESE RUN BEFORE EVERYTHING ELSE. NO EXCEPTIONS.
 
-1. **Ticket ID** — "What's the HC ticket number for this? (e.g. HC-001)" — needed for commits and PRD naming. If truly ad-hoc, confirm explicitly.
-2. **Scope** — Is this a bug fix, new feature, or enhancement?
-3. **Affected areas** — Which files/routes/components are in scope? Are there areas to avoid?
-4. **Acceptance criteria** — How will we know it's done?
+### GATE 1 — ASK BEFORE TOUCHING ANYTHING
 
-Only proceed once you have clear answers. Do not assume scope — ask.
+**Before writing a single line of code, reading a file for implementation purposes, or making ANY change, you MUST ask:**
+
+1. **Ticket ID** — HC number (e.g. HC-001), or explicit ad-hoc confirmation
+2. **Scope** — Bug fix, new feature, or enhancement?
+3. **Affected areas** — Which files/routes/components? What's off-limits?
+4. **Acceptance criteria** — How do we know it's done?
+
+**If you have not received answers to all 4 questions → STOP. Ask. Do not proceed.**
+
+---
+
+### GATE 2 — AFTER EVERY SINGLE TASK, IN THIS ORDER, NO SKIPPING
+
+You are NOT done until ALL of these are complete:
+
+1. **Commit** — `{type}(HC-000): description` + Co-Authored-By line. One commit per task. Do it immediately.
+2. **Update `.claude/learnings.md`** — Any non-obvious discovery, gotcha, or pattern found during the task.
+3. **Create or update the PRD** — `.claude/prds/HC-000-description.md`. Update it with what was built, discovered, or changed.
+4. **Check steering docs** — If a discovery is stable and repeatable, promote it to `.claude/steering/`.
+5. **Ask the user** — "Committed as `abc1234`. Want me to push?"
+
+**If you skip any of these → you have not completed the task. Go back and do it.**
+
+---
 
 ---
 
