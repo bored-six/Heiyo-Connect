@@ -18,6 +18,14 @@
 - Prisma v7 with `@prisma/adapter-pg` takes `PrismaPg({ connectionString })` directly — the adapter owns the connection, not `schema.prisma`'s datasource `url` field. Seed scripts must construct their own `PrismaPg` instance (can't import the Next.js singleton which uses `globalThis`).
 - Seed script full wipe + re-seed pattern (`deleteMany()` in FK-safe reverse order) is safe for dev/demo use and avoids unique constraint errors on re-runs.
 
+## [2026-03-24] - HC-004 UX / Client Patterns
+
+- `useOptimistic` (React 19) must be called at the Client Component level. The reducer receives the full tickets array + an action — return a new array with the optimistic change applied. Pass the same action type to `addOptimistic` inside `React.startTransition()` before awaiting the server action.
+- Socket.io `socket.off(event, handler)` requires the exact same function reference used in `socket.on`. Wrapping the handler in an anonymous function breaks cleanup. Always capture the handler in a `const` before passing to `socket.on`, then use the same ref in `socket.off`.
+- Shadcn Command component is built on `cmdk`. Set `shouldFilter={false}` when you control filtering server-side (e.g., debounced search via server action) — otherwise cmdk filters results client-side a second time and hides valid items.
+- `sonner` `<Toaster />` must be in the root layout (not a dashboard layout) to survive page navigations. `richColors` automatically styles toast by type (info/success/error).
+- `loading.tsx` in Next.js App Router automatically wraps the route segment in a `<Suspense>` boundary — it shows during the initial data fetch. Match the layout structure exactly (same grid columns, same card shapes) for a seamless skeleton-to-content transition.
+
 ## [2026-03-23] - Setup
 
 - `prisma/schema.prisma` was missing `url = env("DATABASE_URL")` in the datasource block — `db:push` would silently fail without it. Fixed at project init.

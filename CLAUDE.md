@@ -212,13 +212,29 @@ Pushing affects the remote and is harder to undo — always confirm first:
 
 ---
 
+## PRD Decision Rules (Autonomous — Never Ask)
+
+**Decide independently. Never ask the user "is this ad-hoc?" or "should I create a PRD?"**
+
+| Work type | PRD? |
+|-----------|------|
+| Scaffold, config, env setup | No |
+| Bug fix, null check, small tweak | No |
+| New user-facing feature (page, form, flow) | Yes — auto-create |
+| Multi-file / multi-component work | Yes — auto-create |
+| Enhancement to existing feature | Yes — update existing PRD |
+
+If a ticket ID (e.g. `HC-012`) is visible in context → use it.
+If no ticket ID exists → name the PRD from the feature: `feat-create-ticket-form.md` with a note in the header: `**Ticket:** None (ad-hoc, YYYY-MM-DD)`.
+
 ## PRD Naming Convention
 
-All PRDs use the `HC-000` ticket format:
+All PRDs use the `HC-000` ticket format when a ticket exists:
 
 ```
 .claude/prds/HC-012-ticket-filter.md         main feature
 .claude/prds/HC-012.1-priority-badge-ui.md   sub-feature
+.claude/prds/feat-create-ticket-form.md      no ticket (ad-hoc)
 ```
 
 PRD header must include:
