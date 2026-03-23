@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import Groq from "groq-sdk";
+import { Mistral } from "@mistralai/mistralai";
 import { z } from "zod";
 import { prisma } from "./prisma";
 
@@ -127,19 +128,21 @@ async function callGroq(prompt: string): Promise<AITicketAnalysis> {
 }
 
 async function callMistral(prompt: string): Promise<AITicketAnalysis> {
-  // TODO: add MISTRAL_API_KEY to .env.local and uncomment the implementation below.
-  //
-  // import { Mistral } from "@mistralai/mistralai"
-  // const client = new Mistral({ apiKey: process.env.MISTRAL_API_KEY! })
-  // const result = await client.chat.complete({
-  //   model: "mistral-small-latest",
-  //   messages: [{ role: "user", content: prompt + "\n\nRespond with valid JSON only." }],
-  // })
-  // const raw = result.choices?.[0]?.message?.content ?? ""
-  // return AIAnalysisSchema.parse(JSON.parse(raw))
-
-  console.warn("[ai-gateway] Mistral not yet configured — falling back to Gemini");
-  return callGemini(prompt);
+  const client = new Mistral({ apiKey: process.env.MISTRAL_API_KEY! });
+  const result = await client.chat.complete({
+    model: "mistral-small-latest",
+    messages: [
+      {
+        role: "user",
+        content: prompt + "\n\nIMPORTANT: Respond with valid JSON only. Do not wrap in markdown code blocks.",
+      },
+    ],
+  });
+  const raw = result.choices?.[0]?.message?.content ?? "";
+  const clean = typeof raw === "string"
+    ? raw.replace(/^```json?\n?/m, "").replace(/```$/m, "").trim()
+    : "";
+  return AIAnalysisSchema.parse(JSON.parse(clean));
 }
 
 // ─────────────────────────────────────────────
