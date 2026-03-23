@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
-import { analyzeTicket } from "@/lib/gemini";
+import { analyzeTicketWithProvider } from "@/lib/ai-gateway";
 import { prisma } from "@/lib/prisma";
 
 const AnalyzeRequestSchema = z.object({
@@ -17,14 +17,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Resolve tenantId for the gateway
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+      select: { tenantId: true },
+    });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const body = await req.json();
     const validated = AnalyzeRequestSchema.parse(body);
 
     // Get customer history if ticketId provided
     let customerHistory;
     if (validated.ticketId) {
-      const ticket = await prisma.ticket.findUnique({
-        where: { id: validated.ticketId },
+      const ticket = await prisma.ticket.findFirst({
+        where: { id: validated.ticketId, tenantId: user.tenantId },
         include: {
           customer: {
             include: { _count: { select: { tickets: true } } },
@@ -47,16 +56,17 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const analysis = await analyzeTicket(
+    const analysis = await analyzeTicketWithProvider(
       validated.subject,
       validated.description,
+      user.tenantId,
       customerHistory
     );
 
     return NextResponse.json(analysis);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.errors }, { status: 400 });
+      return NextResponse.json({ error: error.issues }, { status: 400 });
     }
     console.error("AI analyze error:", error);
     return NextResponse.json({ error: "Analysis failed" }, { status: 500 });

@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/tenant";
-import { analyzeTicket } from "@/lib/gemini";
+import { analyzeTicketWithProvider } from "@/lib/ai-gateway";
+import { verifyTenantAccess } from "@/lib/tenant";
 import { Channel, Priority, TicketStatus } from "@prisma/client";
 
 // ─────────────────────────────────────────────
@@ -87,12 +88,13 @@ export async function createTicket(
     // Trigger AI analysis asynchronously (don't block the response)
     analyzeTicketAsync(ticket.id, validated.subject, validated.description, user.tenantId);
 
+
     revalidatePath("/dashboard/tickets");
     return { success: true, data: { ticketId: ticket.id } };
   } catch (error) {
     console.error("createTicket error:", error);
     if (error instanceof z.ZodError) {
-      return { success: false, error: error.errors[0].message };
+      return { success: false, error: error.issues[0].message };
     }
     return { success: false, error: "Failed to create ticket" };
   }
@@ -109,19 +111,24 @@ async function analyzeTicketAsync(
   tenantId: string
 ) {
   try {
-    const analysis = await analyzeTicket(subject, description);
+    const analysis = await analyzeTicketWithProvider(subject, description, tenantId);
 
     await prisma.ticket.update({
-      where: { id: ticketId, tenantId }, // tenantId as extra safety guard
+      where: { id: ticketId, tenantId },
       data: {
         aiSuggestedResponse: analysis.suggestedResponse,
         aiPriority: analysis.priority as Priority,
         aiAnalyzedAt: new Date(),
         tags: analysis.tags,
-        // Auto-upgrade priority if AI deems it higher
-        priority: analysis.priority as Priority,
+        // Auto-upgrade priority if AI deems it higher (skip on limit-exceeded fallback)
+        ...(!analysis.limitExceeded && { priority: analysis.priority as Priority }),
       },
     });
+
+    // Invalidate usage bar in layout after successful analysis
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/settings");
   } catch (error) {
     console.error("AI analysis failed for ticket", ticketId, error);
   }
@@ -198,6 +205,7 @@ export async function updateTicketStatus(
   try {
     const user = await requireUser();
     const validated = UpdateTicketStatusSchema.parse(data);
+    await verifyTenantAccess(validated.ticketId);
 
     await prisma.ticket.update({
       where: {
@@ -227,6 +235,7 @@ export async function assignTicket(
   try {
     const user = await requireUser();
     const validated = AssignTicketSchema.parse(data);
+    await verifyTenantAccess(validated.ticketId);
 
     await prisma.ticket.update({
       where: {

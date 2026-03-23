@@ -15,12 +15,18 @@ datasource db {
 // ─────────────────────────────────────────────
 
 model Tenant {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
-  slug        String   @unique   // used in URL / subdomain
-  plan        Plan     @default(FREE)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  slug        String     @unique   // used in URL / subdomain
+  plan        Plan       @default(FREE)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // AI configuration
+  aiProvider     AiProvider @default(GEMINI)
+  dailyAiUsage   Int        @default(0)
+  dailyAiLimit   Int        @default(50)
+  lastUsageReset DateTime   @default(now())
 
   // Relations
   users       User[]
@@ -158,6 +164,12 @@ model ApiKey {
 // ─────────────────────────────────────────────
 // ENUMS
 // ─────────────────────────────────────────────
+
+enum AiProvider {
+  GEMINI
+  GROQ
+  MISTRAL
+}
 
 enum Plan {
   FREE

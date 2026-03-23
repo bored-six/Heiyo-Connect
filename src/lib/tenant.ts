@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "./prisma";
 import { cache } from "react";
+import { notFound } from "next/navigation";
 
 /**
  * Gets the current tenant for the authenticated user.
@@ -41,3 +42,18 @@ export const requireUser = cache(async () => {
 
   return user;
 });
+
+/**
+ * Verifies the authenticated user owns the given ticket (IDOR guard).
+ * Calls notFound() on mismatch — safe to use in Server Components and Actions.
+ */
+export async function verifyTenantAccess(ticketId: string): Promise<void> {
+  const user = await requireUser();
+
+  const ticket = await prisma.ticket.findFirst({
+    where: { id: ticketId, tenantId: user.tenantId },
+    select: { id: true },
+  });
+
+  if (!ticket) notFound();
+}

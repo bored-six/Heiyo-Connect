@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/tenant";
+import { requireUser, verifyTenantAccess } from "@/lib/tenant";
 import { generateReply } from "@/lib/gemini";
 
 const SendMessageSchema = z.object({
@@ -25,10 +25,11 @@ export async function sendMessage(
   try {
     const user = await requireUser();
     const validated = SendMessageSchema.parse(data);
+    await verifyTenantAccess(validated.ticketId);
 
-    // Verify the ticket belongs to this tenant
     const ticket = await prisma.ticket.findFirst({
       where: { id: validated.ticketId, tenantId: user.tenantId },
+      select: { id: true },
     });
 
     if (!ticket) return { success: false, error: "Ticket not found" };
