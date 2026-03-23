@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/tenant";
 import { analyzeTicketWithProvider } from "@/lib/ai-gateway";
 import { verifyTenantAccess } from "@/lib/tenant";
+import { emitTicketCreated } from "@/lib/pusher-server";
 import { Channel, Priority, TicketStatus } from "@prisma/client";
 
 // ─────────────────────────────────────────────
@@ -88,6 +89,17 @@ export async function createTicket(
     // Trigger AI analysis asynchronously (don't block the response)
     analyzeTicketAsync(ticket.id, validated.subject, validated.description, user.tenantId);
 
+    // Notify all agents in the tenant in real-time
+    await emitTicketCreated(user.tenantId, {
+      ticket: {
+        id: ticket.id,
+        subject: ticket.subject,
+        priority: ticket.priority,
+        status: ticket.status,
+        createdAt: ticket.createdAt.toISOString(),
+        customer: { name: customer.name, email: customer.email },
+      },
+    });
 
     revalidatePath("/dashboard/tickets");
     return { success: true, data: { ticketId: ticket.id } };

@@ -1,9 +1,30 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
-import { getSocket } from "@/lib/socket-client";
-import type { TicketCreatedPayload, MessageNewPayload } from "@/lib/socket-server";
+import { getPusherClient } from "@/lib/pusher-client";
+
+type TicketCreatedPayload = {
+  ticket: {
+    id: string;
+    subject: string;
+    priority: string;
+    status: string;
+    createdAt: string;
+    customer: { name: string; email: string };
+  };
+};
+
+type MessageNewPayload = {
+  message: {
+    id: string;
+    body: string;
+    isFromAgent: boolean;
+    createdAt: string;
+    author?: { name: string; avatarUrl: string | null };
+  };
+  ticketId: string;
+};
 
 interface UseTicketSocketOptions {
   tenantId: string;
@@ -11,12 +32,10 @@ interface UseTicketSocketOptions {
   onTicketCreated?: (payload: TicketCreatedPayload) => void;
   onTicketUpdated?: (payload: unknown) => void;
   onNewMessage?: (payload: MessageNewPayload) => void;
-  onTypingStart?: (payload: { userId: string }) => void;
-  onTypingStop?: (payload: { userId: string }) => void;
 }
 
 /**
- * Hook to subscribe to real-time ticket events via Socket.io.
+ * Hook to subscribe to real-time ticket events via Pusher Channels.
  *
  * @example
  * useTicketSocket({
@@ -30,42 +49,43 @@ export function useTicketSocket({
   onTicketCreated,
   onTicketUpdated,
   onNewMessage,
-  onTypingStart,
-  onTypingStop,
 }: UseTicketSocketOptions) {
-  const connect = useCallback(() => {
-    const socket = getSocket();
+  // Tenant-level channel (new tickets, ticket updates)
+  useEffect(() => {
+    const pusher = getPusherClient();
+    const channel = pusher.subscribe(`tenant-${tenantId}`);
 
-    if (!socket.connected) socket.connect();
-
-    socket.emit("join:tenant", { tenantId });
-    if (ticketId) socket.emit("join:ticket", { ticketId });
-
-    const handleTicketCreated = (payload: TicketCreatedPayload) => {
+    channel.bind("ticket:created", (payload: TicketCreatedPayload) => {
       toast(`New ${payload.ticket.priority} ticket from ${payload.ticket.customer.name}`, {
         description: payload.ticket.subject,
       });
       onTicketCreated?.(payload);
-    };
+    });
 
-    socket.on("ticket:created", handleTicketCreated);
-    if (onTicketUpdated) socket.on("ticket:updated", onTicketUpdated);
-    if (onNewMessage) socket.on("message:new", onNewMessage);
-    if (onTypingStart) socket.on("typing:start", onTypingStart);
-    if (onTypingStop) socket.on("typing:stop", onTypingStop);
+    channel.bind("ticket:updated", (payload: unknown) => {
+      onTicketUpdated?.(payload);
+    });
 
     return () => {
-      if (ticketId) socket.emit("leave:ticket", { ticketId });
-      socket.off("ticket:created", handleTicketCreated);
-      socket.off("ticket:updated", onTicketUpdated);
-      socket.off("message:new", onNewMessage);
-      socket.off("typing:start", onTypingStart);
-      socket.off("typing:stop", onTypingStop);
+      channel.unbind_all();
+      pusher.unsubscribe(`tenant-${tenantId}`);
     };
-  }, [tenantId, ticketId, onTicketCreated, onTicketUpdated, onNewMessage, onTypingStart, onTypingStop]);
+  }, [tenantId, onTicketCreated, onTicketUpdated]);
 
+  // Ticket-level channel (new messages for a specific ticket)
   useEffect(() => {
-    const cleanup = connect();
-    return cleanup;
-  }, [connect]);
+    if (!ticketId) return;
+
+    const pusher = getPusherClient();
+    const channel = pusher.subscribe(`ticket-${ticketId}`);
+
+    channel.bind("message:new", (payload: MessageNewPayload) => {
+      onNewMessage?.(payload);
+    });
+
+    return () => {
+      channel.unbind_all();
+      pusher.unsubscribe(`ticket-${ticketId}`);
+    };
+  }, [ticketId, onNewMessage]);
 }
