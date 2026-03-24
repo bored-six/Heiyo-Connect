@@ -18,6 +18,20 @@
 - Prisma v7 with `@prisma/adapter-pg` takes `PrismaPg({ connectionString })` directly — the adapter owns the connection, not `schema.prisma`'s datasource `url` field. Seed scripts must construct their own `PrismaPg` instance (can't import the Next.js singleton which uses `globalThis`).
 - Seed script full wipe + re-seed pattern (`deleteMany()` in FK-safe reverse order) is safe for dev/demo use and avoids unique constraint errors on re-runs.
 
+## [2026-03-25] - Known Bugs (Fix Queue)
+
+- **White page after sign-in** — after Clerk login completes, the app shows a blank white page instead of redirecting to `/dashboard`. Requires a manual browser refresh to land on the dashboard. Likely a Clerk redirect timing issue with Next.js App Router. **TODO: investigate and fix.**
+
+## [2026-03-25] - Pre-deployment Checklist
+
+- **Clerk Client Trust must be turned ON before deploying to Vercel/production.** It was disabled during local dev to allow demo account login without email verification. Configure → User & Authentication → Password → Client Trust toggle.
+
+## [2026-03-25] - HC-004 Known Issues / Follow-ups
+
+- `loading.tsx` skeleton is invisible in practice — Next.js App Router caches the dashboard page after first visit and skips the Suspense boundary on subsequent navigations. Fix: add `export const dynamic = 'force-dynamic'` to `dashboard/page.tsx` to force a fresh fetch on every navigation. **TODO: apply this fix.**
+- Demo seed auto-assigns all tickets to the demo agent — "Assign to Me" shows as "Assigned" (disabled) when testing with the demo account. Optimistic UI works correctly; test with personal account against fresh seed data instead.
+- Create ticket form does not exist yet — Pusher real-time toast cannot be tested until HC-005 builds the form.
+
 ## [2026-03-24] - HC-004 UX / Client Patterns
 
 - `useOptimistic` (React 19) must be called at the Client Component level. The reducer receives the full tickets array + an action — return a new array with the optimistic change applied. Pass the same action type to `addOptimistic` inside `React.startTransition()` before awaiting the server action.
