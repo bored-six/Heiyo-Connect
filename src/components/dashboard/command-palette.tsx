@@ -3,6 +3,7 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import { useClerk } from "@clerk/nextjs"
+import { toast } from "sonner"
 import { Settings, Plus, LogOut, Ticket } from "lucide-react"
 import {
   Command,
@@ -146,7 +147,10 @@ export function CommandPalette() {
             <CommandGroup heading="Actions">
               <CommandItem
                 value="new-ticket"
-                onSelect={() => handleNavigate("/dashboard/tickets/new")}
+                onSelect={() => {
+                  close()
+                  toast.info("Create ticket form coming soon")
+                }}
                 className="cursor-pointer"
               >
                 <Plus className="opacity-50" />
