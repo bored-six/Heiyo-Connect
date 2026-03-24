@@ -1,4 +1,6 @@
 import { getTickets } from "@/actions/tickets";
+
+export const dynamic = "force-dynamic";
 import { requireUser } from "@/lib/tenant";
 import { redirect } from "next/navigation";
 import Link from "next/link";

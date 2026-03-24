@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Progress } from "@/components/ui/progress";
+import { NavLogoutButton } from "@/components/dashboard/nav-logout-button";
 import Link from "next/link";
 
 async function getNavUsage(userId: string) {
@@ -57,6 +58,8 @@ export default async function DashboardLayout({
               Settings
             </Link>
           </div>
+
+          <NavLogoutButton />
 
           {/* AI Usage indicator */}
           {usage && (
