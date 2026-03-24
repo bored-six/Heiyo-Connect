@@ -114,10 +114,10 @@ export function CommandPalette() {
             {query.trim() && (
               <>
                 {isSearching && (
-                  <CommandEmpty>Searching...</CommandEmpty>
+                  <div className="py-6 text-center text-sm text-muted-foreground">Searching...</div>
                 )}
                 {!isSearching && results.length === 0 && (
-                  <CommandEmpty>No tickets found for &quot;{query}&quot;</CommandEmpty>
+                  <div className="py-6 text-center text-sm text-muted-foreground">No tickets found for &quot;{query}&quot;</div>
                 )}
                 {!isSearching && results.length > 0 && (
                   <CommandGroup heading="Tickets">
