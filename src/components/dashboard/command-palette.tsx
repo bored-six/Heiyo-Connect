@@ -4,7 +4,7 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import { useClerk } from "@clerk/nextjs"
 import { toast } from "sonner"
-import { Settings, Plus, LogOut, Ticket } from "lucide-react"
+import { Settings, Plus, LogOut, Ticket, SearchIcon } from "lucide-react"
 import {
   Command,
   CommandEmpty,
@@ -98,6 +98,17 @@ export function CommandPalette() {
   return (
     <>
       <CreateTicketDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+
+      {/* Visible trigger button — touch-friendly, always rendered */}
+      <button
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted transition-colors"
+        aria-label="Search tickets (⌘K)"
+      >
+        <SearchIcon className="h-4 w-4 shrink-0" />
+        <span className="hidden sm:inline">Search</span>
+        <kbd className="hidden sm:inline text-xs opacity-50 font-mono">⌘K</kbd>
+      </button>
 
       {open && (
         <div

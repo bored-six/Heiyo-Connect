@@ -93,11 +93,11 @@ export function TicketTable({
           <thead className="bg-muted/50">
             <tr>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">Subject</th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Customer</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Customer</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">Priority</th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Messages</th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Created</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Messages</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Created</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">Actions</th>
             </tr>
           </thead>
@@ -119,7 +119,7 @@ export function TicketTable({
                         {ticket.subject}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">
+                    <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">
                       <div>{ticket.customer.name}</div>
                       <div className="text-xs">{ticket.customer.email}</div>
                     </td>
@@ -137,10 +137,10 @@ export function TicketTable({
                         {ticket.priority}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">
+                    <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
                       {ticket._count.messages}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">
+                    <td className="px-4 py-3 text-muted-foreground text-xs hidden md:table-cell">
                       {new Date(ticket.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3">

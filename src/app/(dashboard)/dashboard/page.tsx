@@ -26,20 +26,21 @@ export default async function DashboardPage() {
 
   return (
     <main className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Command Palette — rendered client-side, listens for Cmd+K globally */}
-      <CommandPalette />
-
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-semibold tracking-tight truncate">
             {user.tenant.name} — Support Dashboard
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Welcome back, {user.name ?? user.email}
           </p>
         </div>
-        <CreateTicketButton />
+        {/* Search + Create — CommandPalette renders its own trigger button */}
+        <div className="flex items-center gap-2 shrink-0">
+          <CommandPalette />
+          <CreateTicketButton />
+        </div>
       </div>
 
       {/* Stats */}

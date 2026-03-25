@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+import { BarChart3, DatabaseIcon } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   AreaChart,
@@ -100,8 +102,38 @@ function StatCard({
   )
 }
 
+// ─── Empty state ──────────────────────────────────────────────────────────────
+function ReportsEmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-24 px-4 text-center">
+      <div className="rounded-full bg-muted p-5 mb-5">
+        <BarChart3 className="h-10 w-10 text-muted-foreground" />
+      </div>
+      <h3 className="text-lg font-semibold mb-2">No analytics data yet</h3>
+      <p className="text-sm text-muted-foreground max-w-sm mb-6">
+        Analytics will appear here once you have tickets. Head to the dashboard
+        to create your first ticket — or seed 15 demo tickets to see charts
+        come to life right away.
+      </p>
+      <div className="flex flex-col sm:flex-row items-center gap-2">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          <DatabaseIcon className="h-3.5 w-3.5" />
+          Go to Dashboard
+        </Link>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main export ──────────────────────────────────────────────────────────────
 export function ReportsCharts({ data }: { data: TenantAnalytics }) {
+  if (data.totalTickets === 0) {
+    return <ReportsEmptyState />
+  }
+
   const {
     totalTickets,
     aiSuccesses,
