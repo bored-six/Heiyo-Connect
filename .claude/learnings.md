@@ -3,6 +3,23 @@
 <!-- Format: ## [YYYY-MM-DD] - Category -->
 <!-- Max 50 entries. Promote stable patterns to steering docs. -->
 
+## [2026-03-26] - HC-011 Patterns
+
+- **Public API routes for unauthenticated ticket creation**: server actions (`"use server"`) depend on Clerk auth context — `requireUser()` throws if no session. Unauthenticated submissions must go through API route handlers (`route.ts`) which can bypass auth explicitly. Pattern: POST `/api/public-ticket` with slug+form fields → tenant lookup → ticket create → fire-and-forget AI + Pusher.
+- **`analyzeTicketAsync` is unexported in tickets.ts**: when the same AI pipeline is needed from an API route, import `analyzeTicketWithProvider` + `emitTicketCreated` directly rather than refactoring a tested server action. Keeps blast radius zero.
+- **`Tenant.slug` already existed**: no migration was needed for the `/p/[slug]` portal — the field was added early in the schema. Check schema before planning migrations.
+- **`colSpan` was 7, should be 8**: HC-008 added the `#` (Ticket ID) column; `TicketEmptyState` colSpan was never updated. Table now has 8 columns: Ticket ID, Subject, Customer, Status, Priority, Messages, Created, Actions.
+- **Landing page uses inline styles intentionally**: this is the HC-007 pattern — fixed-dark marketing page cannot use semantic Tailwind tokens (they follow OS theme). Inline hex/rgba keeps it always dark. Don't "clean up" these inline styles.
+
+## [2026-03-26] - HC-010 Patterns
+
+- **`useOptimistic` + `startTransition` in React 19**: call `addOptimisticMessage` inside `startTransition(async () => { ... })`. The optimistic state auto-reverts when the transition ends if no revalidation happened (action failure path). On success, `revalidatePath` re-renders the Server Component which updates the base state — the real message replaces the optimistic one.
+- **SYSTEM messages in same table as user messages**: storing audit events in the `Message` table with `senderRole: SYSTEM` keeps the thread chronologically perfect and eliminates the need for a JOIN or separate array in `useOptimistic`. Filtering system messages out of the count (`messages.filter(m => m.senderRole !== 'SYSTEM').length`) keeps the displayed count accurate.
+- **`z.infer` vs `z.input` for Zod defaults**: `z.infer<typeof Schema>` gives the *output* type where `.default()` fields are required. Use `z.input<typeof Schema>` for the function parameter when callers omit fields that have schema-level defaults (e.g., `channel`).
+- **Pusher `emitNewMessage` fire-and-forget**: wrap the emit in `.catch(() => {})` inside server actions — Pusher failure is non-fatal since the DB write already succeeded. Consistent with `analyzeTicketAsync` pattern in tickets.ts.
+- **`senderRole` fallback in page.tsx**: existing rows in DB had no `senderRole` before migration (default = USER). Page uses `msg.senderRole ?? (msg.isFromAgent ? "AGENT" : "USER")` to gracefully handle legacy rows.
+- **Prisma v7 new enums undefined at runtime in running dev server**: if you add a new enum to the schema and run `db:generate` while the Next.js dev server is already running, the new enum object (e.g. `SenderRole`) resolves to `undefined` at runtime even though TypeScript compiles fine. Fix: use string literals (`"AGENT"`, `"SYSTEM"`) instead of enum references — they're type-safe and always resolve. Alternatively, restart the dev server.
+
 ## [2026-03-26] - HC-009 Patterns
 
 - **Filter pills follow the same URL-param pattern as sort**: clone existing `searchParams` with `new URLSearchParams(searchParams.toString())`, then `params.set` / `params.delete` before pushing. This preserves sort params when filters change and vice versa.

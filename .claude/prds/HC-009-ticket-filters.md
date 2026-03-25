@@ -94,3 +94,4 @@ Manual verification:
 |------|--------|--------|
 | 2026-03-26 | Created | HC-009 implementation |
 | 2026-03-26 | Lifted card wrapper from TicketTable to dashboard page | Needed unified header for filters + title inside same card |
+| 2026-03-26 | Replaced pill buttons with compact native `<select>` dropdowns | Visual redesign — filters moved inline with "All Tickets" heading (right-aligned). Status/Priority selects show active value on load via `currentStatus`/`currentPriority` props. Toggle-off behavior removed (selects always have a value, "All" = empty string = param deleted). |

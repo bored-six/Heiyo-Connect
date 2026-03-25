@@ -13,7 +13,7 @@
 | Database | PostgreSQL | any |
 | Auth | Clerk (@clerk/nextjs) | 7.0.6 |
 | AI | Google Gemini (@google/generative-ai) | 0.24.1 |
-| Real-time | Socket.io | 4.8.3 |
+| Real-time | Pusher Channels | latest |
 | Validation | Zod | 4.3.6 |
 | Forms | React Hook Form | 7.72.0 |
 | Icons | Lucide React | 0.577.0 |
@@ -41,7 +41,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ## Auth (Clerk)
 - Middleware at `src/middleware.ts` — uses `clerkMiddleware` + `createRouteMatcher`
-- Public routes: `/`, `/sign-in(.*)`, `/sign-up(.*)`, `/api/webhooks(.*)`
+- Public routes: `/`, `/sign-in(.*)`, `/sign-up(.*)`, `/onboarding(.*)`, `/api/webhooks(.*)`, `/api/demo(.*)`, `/api/public-ticket(.*)`, `/p/(.*)`
 - All other routes protected by `auth.protect()`
 - `requireUser()` in `src/lib/tenant.ts` — throws if unauthenticated
 - User's `clerkId` stored in DB `User.clerkId`; `tenantId` derived from User record
@@ -54,25 +54,22 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 - Returns sensible defaults on failure — never throws to caller
 - Reply generation uses last 6 messages as context
 
-## Real-time (Socket.io)
-- **Standard `npm run dev` does NOT include Socket.io**
-- Must use `npm run dev:socket` (`ts-node server.ts`) for real-time
-- Socket.io attaches to the HTTP server in `server.ts`
-- Path: `/api/socket`; transports: websocket + polling fallback
-- CORS: `NEXT_PUBLIC_APP_URL`
-- Client singleton: `src/lib/socket-client.ts` → `getSocket()`
-- Rooms: `tenant:{tenantId}` and `ticket:{ticketId}`
-- Server emitters in `src/lib/socket-server.ts`:
-  - `emitTicketCreated(tenantId, payload)`
-  - `emitTicketUpdated(tenantId, ticket)`
+## Real-time (Pusher Channels)
+- Migrated from Socket.io in HC-004.1 — Pusher is the only real-time layer
+- Server client: `src/lib/pusher-server.ts` → `pusherServer` singleton (Pusher SDK)
+- Client hook: `src/hooks/useTicketSocket.ts` → `useTicketSocket()` (Pusher JS)
+- Channels: `tenant-{tenantId}` (org-wide), `ticket-{ticketId}` (specific ticket)
+- Server emitters in `src/lib/pusher-server.ts`:
+  - `emitTicketCreated(tenantId, payload)` — fires AFTER AI sets priority
   - `emitNewMessage(ticketId, payload)`
-- Client events from server: `ticket:created`, `ticket:updated`, `message:new`, `ticket:assigned`
-- Client → server: `join:tenant`, `join:ticket`, `leave:ticket`, `typing:start`, `typing:stop`
+- Client events: `ticket:created`, `message:new`
+- Required env vars: `PUSHER_APP_ID`, `PUSHER_KEY`, `PUSHER_SECRET`, `PUSHER_CLUSTER`
+- Public env: `NEXT_PUBLIC_PUSHER_KEY`, `NEXT_PUBLIC_PUSHER_CLUSTER`
+- Any reference to Socket.io in source comments is stale tech debt — ignore
 
 ## Dev Scripts
 ```bash
-npm run dev          # Next.js only (no Socket.io)
-npm run dev:socket   # Custom server with Socket.io (requires ts-node)
+npm run dev          # Next.js dev server (Pusher works — no custom server needed)
 npm run build        # Production build
 npm run db:push      # Push schema to DB
 npm run db:generate  # Generate Prisma client
@@ -81,5 +78,6 @@ npm run db:studio    # Open Prisma Studio
 
 ## API Routes
 - `POST /api/ai/analyze` — AI ticket analysis (auth required)
-- `/api/socket` — Socket.io endpoint (handled by custom server, not Next.js route handler)
+- `POST /api/public-ticket` — Unauthenticated public ticket creation; slug+form → tenant lookup → ticket create → AI + Pusher (fire-and-forget)
+- `GET /api/demo` — Demo account auto-login redirect
 - `/api/webhooks/*` — Public (Clerk webhooks)
