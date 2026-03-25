@@ -50,6 +50,12 @@ export default async function DashboardLayout({
               Tickets
             </Link>
             <Link
+              href="/dashboard/reports"
+              className="hover:text-foreground transition-colors"
+            >
+              Reports
+            </Link>
+            <Link
               href="/dashboard/settings"
               className="hover:text-foreground transition-colors"
             >
