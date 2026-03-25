@@ -110,6 +110,14 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
             )}
           </div>
           <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isSubmitting}
+              onClick={() => { reset(); onOpenChange(false) }}
+            >
+              Cancel
+            </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
