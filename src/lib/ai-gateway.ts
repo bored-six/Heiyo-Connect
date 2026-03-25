@@ -110,7 +110,7 @@ async function callGemini(prompt: string): Promise<AITicketAnalysis> {
 async function callGroq(prompt: string): Promise<AITicketAnalysis> {
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
   const completion = await groq.chat.completions.create({
-    model: "llama3-8b-8192",
+    model: "llama-3.1-8b-instant",
     messages: [
       {
         role: "user",
