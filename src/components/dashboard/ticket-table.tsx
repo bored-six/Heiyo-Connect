@@ -102,12 +102,16 @@ export function TicketTable({
   tenantId,
   currentSort = "createdAt",
   currentDir = "desc",
+  currentStatus,
+  currentPriority,
 }: {
   tickets: Ticket[]
   currentUserId: string
   tenantId: string
   currentSort?: SortField
   currentDir?: SortDir
+  currentStatus?: TicketStatus | null
+  currentPriority?: Priority | null
 }) {
   const router = useRouter()
   const [optimisticTickets, addOptimistic] = React.useOptimistic<OptimisticTicket[], OptimisticAction>(
@@ -135,12 +139,8 @@ export function TicketTable({
   }
 
   return (
-    <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
-      <div className="p-4 border-b">
-        <h2 className="font-medium">All Tickets</h2>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground w-24">Ticket ID</th>
@@ -177,7 +177,7 @@ export function TicketTable({
           </thead>
           <tbody className="divide-y">
             {optimisticTickets.length === 0 ? (
-              <TicketEmptyState />
+              <TicketEmptyState filtered={!!(currentStatus || currentPriority)} />
             ) : (
               optimisticTickets.map((ticket) => {
                 const isResolved = ticket.status === TicketStatus.RESOLVED || ticket.status === TicketStatus.CLOSED
@@ -244,7 +244,6 @@ export function TicketTable({
             )}
           </tbody>
         </table>
-      </div>
     </div>
   )
 }

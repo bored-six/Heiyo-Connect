@@ -4,10 +4,11 @@ export const dynamic = "force-dynamic";
 import { requireUser } from "@/lib/tenant";
 import { redirect } from "next/navigation";
 import { TicketTable } from "@/components/dashboard/ticket-table";
+import { TicketFilters } from "@/components/dashboard/ticket-filters";
 import { CommandPalette } from "@/components/dashboard/command-palette";
 import { CreateTicketButton } from "@/components/dashboard/create-ticket-button";
 import { getAiUsage } from "@/actions/settings";
-import { AiProvider } from "@prisma/client";
+import { AiProvider, TicketStatus, Priority } from "@prisma/client";
 
 const AI_PROVIDER_SHORT: Record<AiProvider, string> = {
   GEMINI: "Gemini 2.0 Flash",
@@ -15,10 +16,13 @@ const AI_PROVIDER_SHORT: Record<AiProvider, string> = {
   MISTRAL: "Mistral Small",
 };
 
+const VALID_STATUSES = Object.values(TicketStatus);
+const VALID_PRIORITIES = Object.values(Priority);
+
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sort?: string; dir?: string }>;
+  searchParams: Promise<{ sort?: string; dir?: string; status?: string; priority?: string }>;
 }) {
   let user;
   try {
@@ -35,7 +39,17 @@ export default async function DashboardPage({
     : "createdAt";
   const dir = params.dir === "asc" ? "asc" : "desc";
 
-  const [tickets, aiUsage] = await Promise.all([getTickets({ sort, dir }), getAiUsage()]);
+  const status = VALID_STATUSES.includes(params.status as TicketStatus)
+    ? (params.status as TicketStatus)
+    : undefined;
+  const priority = VALID_PRIORITIES.includes(params.priority as Priority)
+    ? (params.priority as Priority)
+    : undefined;
+
+  const [tickets, aiUsage] = await Promise.all([
+    getTickets({ sort, dir, status, priority }),
+    getAiUsage(),
+  ]);
 
   const stats = {
     open: tickets.filter((t) => t.status === "OPEN").length,
@@ -85,13 +99,21 @@ export default async function DashboardPage({
       </div>
 
       {/* Ticket Table — client component with useOptimistic quick actions + Pusher */}
-      <TicketTable
-        tickets={tickets}
-        currentUserId={user.id}
-        tenantId={user.tenantId}
-        currentSort={sort}
-        currentDir={dir}
-      />
+      <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
+        <div className="p-4 border-b flex flex-col gap-3">
+          <h2 className="font-medium">All Tickets</h2>
+          <TicketFilters currentStatus={status} currentPriority={priority} />
+        </div>
+        <TicketTable
+          tickets={tickets}
+          currentUserId={user.id}
+          tenantId={user.tenantId}
+          currentSort={sort}
+          currentDir={dir}
+          currentStatus={status}
+          currentPriority={priority}
+        />
+      </div>
     </main>
   );
 }
