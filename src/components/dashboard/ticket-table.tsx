@@ -143,7 +143,7 @@ export function TicketTable({
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground w-14">#</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground w-24">Ticket ID</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">Subject</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Customer</th>
               <SortableHeader
