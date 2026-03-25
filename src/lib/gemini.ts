@@ -11,7 +11,7 @@ export async function generateReply(
   messageHistory: { body: string; isFromAgent: boolean }[],
   latestMessage: string
 ): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   const historyText = messageHistory
     .slice(-6) // last 6 messages for context

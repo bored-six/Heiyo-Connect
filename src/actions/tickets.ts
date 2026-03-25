@@ -149,10 +149,8 @@ async function analyzeTicketAsync(
       },
     });
 
-    // Invalidate usage bar and dashboard after successful analysis
-    const { revalidatePath } = await import("next/cache");
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/settings");
+    // No revalidatePath needed here — force-dynamic on layout/page ensures
+    // router.refresh() (triggered by the Pusher event above) always fetches fresh data.
   } catch (error) {
     console.error("AI analysis failed for ticket", ticketId, error);
   }
