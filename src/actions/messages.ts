@@ -5,7 +5,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/tenant";
 import { emitNewMessage } from "@/lib/pusher-server";
-import { SenderRole, TicketStatus } from "@prisma/client";
+import { TicketStatus } from "@prisma/client";
 
 const SendReplySchema = z.object({
   ticketId: z.string().cuid(),
@@ -41,7 +41,7 @@ export async function sendReply(
     const message = await prisma.message.create({
       data: {
         body: validated.body,
-        senderRole: SenderRole.AGENT,
+        senderRole: "AGENT",
         isFromAgent: true,
         tenantId: user.tenantId,
         ticketId: validated.ticketId,
@@ -61,7 +61,7 @@ export async function sendReply(
       await prisma.message.create({
         data: {
           body: `Status changed to In Progress`,
-          senderRole: SenderRole.SYSTEM,
+          senderRole: "SYSTEM",
           isFromAgent: false,
           tenantId: user.tenantId,
           ticketId: validated.ticketId,
@@ -74,7 +74,7 @@ export async function sendReply(
       message: {
         id: message.id,
         body: message.body,
-        senderRole: SenderRole.AGENT,
+        senderRole: "AGENT",
         isFromAgent: true,
         createdAt: message.createdAt.toISOString(),
         author: message.author ?? undefined,
