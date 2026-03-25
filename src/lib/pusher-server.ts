@@ -28,3 +28,24 @@ export async function emitTicketCreated(
 ) {
   await pusherServer.trigger(`tenant-${tenantId}`, "ticket:created", payload);
 }
+
+/**
+ * Trigger a message:new event to all subscribers of a specific ticket.
+ * Call this from sendReply() server action.
+ */
+export async function emitNewMessage(
+  ticketId: string,
+  payload: {
+    message: {
+      id: string;
+      body: string;
+      senderRole: string;
+      isFromAgent: boolean;
+      createdAt: string;
+      author?: { name: string | null; avatarUrl: string | null };
+    };
+    ticketId: string;
+  }
+) {
+  await pusherServer.trigger(`ticket-${ticketId}`, "message:new", payload);
+}

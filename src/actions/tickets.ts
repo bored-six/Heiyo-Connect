@@ -49,7 +49,7 @@ type ActionResult<T = void> =
  * Triggers AI analysis in the background — Pusher emit fires after AI priority is set.
  */
 export async function createTicket(
-  formData: z.infer<typeof CreateTicketSchema>
+  formData: z.input<typeof CreateTicketSchema>
 ): Promise<ActionResult<{ ticketId: string }>> {
   try {
     const user = await requireUser();

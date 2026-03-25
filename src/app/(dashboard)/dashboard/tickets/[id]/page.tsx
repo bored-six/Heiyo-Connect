@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getTicketById } from "@/actions/tickets"
 import { CopyButton } from "@/components/tickets/copy-button"
+import { ReplySection } from "@/components/tickets/reply-section"
 import { ArrowLeft, Bot, User, Clock } from "lucide-react"
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -89,40 +90,23 @@ export default async function TicketDetailPage({
         </div>
       )}
 
-      {/* Messages thread */}
-      {ticket.messages.length > 0 && (
-        <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
-          <div className="p-4 border-b">
-            <h2 className="font-medium">Messages ({ticket.messages.length})</h2>
-          </div>
-          <div className="divide-y">
-            {ticket.messages.map((msg) => (
-              <div key={msg.id} className="p-4 space-y-1">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="font-medium text-foreground">
-                    {msg.isFromAgent ? (msg.author?.name ?? "Agent") : ticket.customer.name}
-                  </span>
-                  {msg.isAiGenerated && (
-                    <span className="inline-flex items-center gap-0.5 text-blue-600">
-                      <Bot className="h-3 w-3" />
-                      AI
-                    </span>
-                  )}
-                  <span>{new Date(msg.createdAt).toLocaleString()}</span>
-                </div>
-                <p className="text-sm whitespace-pre-wrap">{msg.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* No messages yet */}
-      {ticket.messages.length === 0 && (
-        <div className="rounded-lg border bg-card p-8 text-center text-sm text-muted-foreground">
-          No messages yet on this ticket.
-        </div>
-      )}
+      {/* Interactive message thread + reply box */}
+      <ReplySection
+        messages={ticket.messages.map((msg) => ({
+          id: msg.id,
+          body: msg.body,
+          senderRole: (msg.senderRole ?? (msg.isFromAgent ? "AGENT" : "USER")) as "USER" | "AGENT" | "SYSTEM",
+          isAiGenerated: msg.isAiGenerated,
+          createdAt: msg.createdAt,
+          author: msg.author
+            ? { id: msg.author.id, name: msg.author.name, avatarUrl: msg.author.avatarUrl }
+            : null,
+        }))}
+        ticketId={ticket.id}
+        aiSuggestedResponse={ticket.aiSuggestedResponse ?? null}
+        customerName={ticket.customer.name}
+        currentUserName={ticket.assignedAgent?.name ?? null}
+      />
     </main>
   )
 }

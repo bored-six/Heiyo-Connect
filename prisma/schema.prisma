@@ -125,6 +125,7 @@ model Ticket {
 model Message {
   id          String      @id @default(cuid())
   body        String      @db.Text
+  senderRole  SenderRole  @default(USER)
   isFromAgent Boolean     @default(false)   // false = customer, true = agent/AI
   isAiGenerated Boolean   @default(false)
   createdAt   DateTime    @default(now())
@@ -207,4 +208,10 @@ enum Channel {
   PHONE
   SOCIAL
   API
+}
+
+enum SenderRole {
+  USER    // Customer message
+  AGENT   // Agent reply
+  SYSTEM  // Audit / system event
 }
