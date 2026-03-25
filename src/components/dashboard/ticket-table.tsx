@@ -29,7 +29,7 @@ type SortDir = "asc" | "desc"
 
 type Ticket = {
   id: string
-  ticketNumber: number
+  ticketNumber: number | null
   subject: string
   status: TicketStatus
   priority: Priority
@@ -186,7 +186,7 @@ export function TicketTable({
                 return (
                   <tr key={ticket.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-3 text-muted-foreground font-mono text-xs">
-                      #{String(ticket.ticketNumber).padStart(3, "0")}
+                      {ticket.ticketNumber != null ? `#${String(ticket.ticketNumber).padStart(3, "0")}` : "—"}
                     </td>
                     <td className="px-4 py-3">
                       <Link
