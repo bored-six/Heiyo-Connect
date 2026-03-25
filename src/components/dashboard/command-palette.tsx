@@ -33,12 +33,14 @@ export function CommandPalette() {
   const router = useRouter()
   const { signOut } = useClerk()
 
-  // Open on Cmd+K / Ctrl+K
+  // Open on Cmd+K / Ctrl+K, close on Escape
   React.useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
         setOpen((prev) => !prev)
+      } else if (e.key === "Escape") {
+        close()
       }
     }
     document.addEventListener("keydown", handleKeyDown)
