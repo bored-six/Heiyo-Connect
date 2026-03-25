@@ -100,7 +100,7 @@ export default async function DashboardPage({
 
       {/* Ticket Table — client component with useOptimistic quick actions + Pusher */}
       <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
-        <div className="p-4 border-b flex flex-col gap-3">
+        <div className="flex items-center justify-between px-4 py-3 border-b">
           <h2 className="font-medium">All Tickets</h2>
           <TicketFilters currentStatus={status} currentPriority={priority} />
         </div>
