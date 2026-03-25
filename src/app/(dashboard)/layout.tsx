@@ -3,8 +3,8 @@ export const dynamic = "force-dynamic";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { Progress } from "@/components/ui/progress";
 import { NavLogoutButton } from "@/components/dashboard/nav-logout-button";
+import { NavUsageBar } from "@/components/dashboard/nav-usage-bar";
 import Link from "next/link";
 
 async function getNavUsage(userId: string) {
@@ -12,7 +12,7 @@ async function getNavUsage(userId: string) {
     where: { clerkId: userId },
     select: {
       tenant: {
-        select: { dailyAiUsage: true, dailyAiLimit: true },
+        select: { id: true, dailyAiUsage: true, dailyAiLimit: true },
       },
     },
   });
@@ -31,10 +31,6 @@ export default async function DashboardLayout({
   }
 
   const usage = await getNavUsage(userId);
-  const usagePct = usage
-    ? Math.round((usage.dailyAiUsage / usage.dailyAiLimit) * 100)
-    : 0;
-  const isAtLimit = usage ? usage.dailyAiUsage >= usage.dailyAiLimit : false;
 
   return (
     <div className="min-h-screen bg-background">
@@ -63,20 +59,13 @@ export default async function DashboardLayout({
 
           <NavLogoutButton />
 
-          {/* AI Usage indicator */}
+          {/* AI Usage indicator — client component, updates live via Pusher */}
           {usage && (
-            <Link
-              href="/dashboard/settings"
-              className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              title="AI requests used today — click to manage"
-            >
-              <div className="flex flex-col items-end gap-1 min-w-[100px]">
-                <span className={isAtLimit ? "text-destructive font-semibold" : ""}>
-                  {isAtLimit ? "AI Limit Reached" : `AI: ${usage.dailyAiUsage}/${usage.dailyAiLimit}`}
-                </span>
-                <Progress value={usagePct} className="w-24 h-1.5" />
-              </div>
-            </Link>
+            <NavUsageBar
+              initialUsage={usage.dailyAiUsage}
+              dailyAiLimit={usage.dailyAiLimit}
+              tenantId={usage.id}
+            />
           )}
         </div>
       </nav>
