@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { getPusherClient } from "@/lib/pusher-client";
 
@@ -37,11 +37,10 @@ interface UseTicketSocketOptions {
 /**
  * Hook to subscribe to real-time ticket events via Pusher Channels.
  *
- * @example
- * useTicketSocket({
- *   tenantId: "tenant_xxx",
- *   onTicketCreated: (p) => console.log("New ticket:", p.ticket.subject),
- * });
+ * Callbacks are stored in refs so the subscription never tears down just
+ * because a parent re-renders with a new function reference. unbind() is
+ * called with the exact handler reference so multiple components can share
+ * the same Pusher channel without clobbering each other's bindings.
  */
 export function useTicketSocket({
   tenantId,
@@ -50,27 +49,41 @@ export function useTicketSocket({
   onTicketUpdated,
   onNewMessage,
 }: UseTicketSocketOptions) {
+  // Keep latest callbacks in refs — avoids stale closures without causing
+  // the effect to re-run every render
+  const onTicketCreatedRef = useRef(onTicketCreated);
+  const onTicketUpdatedRef = useRef(onTicketUpdated);
+  const onNewMessageRef = useRef(onNewMessage);
+  onTicketCreatedRef.current = onTicketCreated;
+  onTicketUpdatedRef.current = onTicketUpdated;
+  onNewMessageRef.current = onNewMessage;
+
   // Tenant-level channel (new tickets, ticket updates)
   useEffect(() => {
     const pusher = getPusherClient();
     const channel = pusher.subscribe(`tenant-${tenantId}`);
 
-    channel.bind("ticket:created", (payload: TicketCreatedPayload) => {
+    const handleTicketCreated = (payload: TicketCreatedPayload) => {
       toast(`New ${payload.ticket.priority} ticket from ${payload.ticket.customer.name}`, {
         description: payload.ticket.subject,
       });
-      onTicketCreated?.(payload);
-    });
+      onTicketCreatedRef.current?.(payload);
+    };
 
-    channel.bind("ticket:updated", (payload: unknown) => {
-      onTicketUpdated?.(payload);
-    });
+    const handleTicketUpdated = (payload: unknown) => {
+      onTicketUpdatedRef.current?.(payload);
+    };
+
+    channel.bind("ticket:created", handleTicketCreated);
+    channel.bind("ticket:updated", handleTicketUpdated);
 
     return () => {
-      channel.unbind_all();
-      pusher.unsubscribe(`tenant-${tenantId}`);
+      // Unbind only this hook's handlers — other subscribers on the same
+      // channel are unaffected
+      channel.unbind("ticket:created", handleTicketCreated);
+      channel.unbind("ticket:updated", handleTicketUpdated);
     };
-  }, [tenantId, onTicketCreated, onTicketUpdated]);
+  }, [tenantId]); // only re-subscribe if the tenant changes
 
   // Ticket-level channel (new messages for a specific ticket)
   useEffect(() => {
@@ -79,13 +92,14 @@ export function useTicketSocket({
     const pusher = getPusherClient();
     const channel = pusher.subscribe(`ticket-${ticketId}`);
 
-    channel.bind("message:new", (payload: MessageNewPayload) => {
-      onNewMessage?.(payload);
-    });
+    const handleNewMessage = (payload: MessageNewPayload) => {
+      onNewMessageRef.current?.(payload);
+    };
+
+    channel.bind("message:new", handleNewMessage);
 
     return () => {
-      channel.unbind_all();
-      pusher.unsubscribe(`ticket-${ticketId}`);
+      channel.unbind("message:new", handleNewMessage);
     };
-  }, [ticketId, onNewMessage]);
+  }, [ticketId]); // only re-subscribe if the ticket changes
 }
