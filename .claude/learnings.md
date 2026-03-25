@@ -3,6 +3,13 @@
 <!-- Format: ## [YYYY-MM-DD] - Category -->
 <!-- Max 50 entries. Promote stable patterns to steering docs. -->
 
+## [2026-03-26] - HC-009 Patterns
+
+- **Filter pills follow the same URL-param pattern as sort**: clone existing `searchParams` with `new URLSearchParams(searchParams.toString())`, then `params.set` / `params.delete` before pushing. This preserves sort params when filters change and vice versa.
+- **Lifting card wrapper out of client components**: when a Server Component needs to inject UI (filters, headings) inside a card that was previously owned by a client component, move the card wrapper to the Server Component and strip it from the client component. Keeps visual grouping without prop-drilling render output.
+- **Contextual empty states need a `filtered` boolean prop**: `TicketEmptyState` now accepts `filtered?: boolean` — when true it shows "No tickets match your filters" without the seed/create CTAs. This avoids showing "seed 15 tickets" when tickets exist but none match the active filter.
+- **Server-side filter validation pattern**: use `Object.values(SomeEnum).includes(param as SomeEnum)` to validate URL params against Prisma enum allowlists before passing to actions. Invalid values become `undefined` (treated as "no filter") — never throw or redirect.
+
 ## [2026-03-26] - HC-008 Patterns
 
 - **URL-based sort in Server Components**: pass `searchParams` (a Promise in Next.js 16 App Router) to the page, `await` it, validate sort field against an allowlist, then pass to both the server action and the table component as props. This keeps sort state bookmarkable and avoids client-side state.
