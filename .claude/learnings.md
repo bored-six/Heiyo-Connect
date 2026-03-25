@@ -3,6 +3,14 @@
 <!-- Format: ## [YYYY-MM-DD] - Category -->
 <!-- Max 50 entries. Promote stable patterns to steering docs. -->
 
+## [2026-03-26] - HC-008 Patterns
+
+- **URL-based sort in Server Components**: pass `searchParams` (a Promise in Next.js 16 App Router) to the page, `await` it, validate sort field against an allowlist, then pass to both the server action and the table component as props. This keeps sort state bookmarkable and avoids client-side state.
+- **`useSearchParams()` in sort headers**: use `new URLSearchParams(searchParams.toString())` to clone existing params before setting `sort` and `dir`, so other query params (filters, etc.) are preserved on sort navigation.
+- **Prisma `_count` relation sort**: to sort by message count use `orderBy: { messages: { _count: "asc" | "desc" } }` — NOT `_count: { messages: ... }`. The field name is the relation name, not `_count`.
+- **`TicketEmptyState` colSpan must be updated** when adding columns — HC-008 added a `#` column, bringing total to 8. The empty state `colSpan` was not updated in this ticket; check it if blank-state row layout looks broken.
+- **`autoincrement()` fields in Postgres** start at 1 for new records; existing rows get NULL unless backfilled. For fresh dev databases this is fine; production migrations need a default or backfill script.
+
 ## [2026-03-26] - HC-007 Patterns
 
 - **Landing page uses inline styles for the Midnight theme** — semantic Tailwind CSS variable tokens (`bg-background`, `text-foreground`) follow the app's light/dark theme. For a fixed-dark marketing page, use literal hex/rgba inline styles so the page is always dark regardless of the user's OS theme.
