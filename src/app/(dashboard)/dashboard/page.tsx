@@ -3,9 +3,9 @@ import { getTickets } from "@/actions/tickets";
 export const dynamic = "force-dynamic";
 import { requireUser } from "@/lib/tenant";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { TicketTable } from "@/components/dashboard/ticket-table";
 import { CommandPalette } from "@/components/dashboard/command-palette";
+import { CreateTicketButton } from "@/components/dashboard/create-ticket-button";
 
 export default async function DashboardPage() {
   let user;
@@ -39,12 +39,7 @@ export default async function DashboardPage() {
             Welcome back, {user.name ?? user.email}
           </p>
         </div>
-        <Link
-          href="/dashboard/tickets/new"
-          className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          + New Ticket
-        </Link>
+        <CreateTicketButton />
       </div>
 
       {/* Stats */}
@@ -62,8 +57,8 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Ticket Table — client component with useOptimistic quick actions */}
-      <TicketTable tickets={tickets} currentUserId={user.id} />
+      {/* Ticket Table — client component with useOptimistic quick actions + Pusher */}
+      <TicketTable tickets={tickets} currentUserId={user.id} tenantId={user.tenantId} />
     </main>
   );
 }

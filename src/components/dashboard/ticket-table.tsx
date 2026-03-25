@@ -2,9 +2,11 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { TicketStatus, Priority } from "@prisma/client"
 import { updateTicketStatus, assignTicket } from "@/actions/tickets"
 import { TicketEmptyState } from "@/components/tickets/empty-state"
+import { useTicketSocket } from "@/hooks/useTicketSocket"
 
 const PRIORITY_COLORS: Record<Priority, string> = {
   LOW: "bg-slate-100 text-slate-700",
@@ -50,14 +52,22 @@ function applyOptimistic(tickets: OptimisticTicket[], action: OptimisticAction):
 export function TicketTable({
   tickets,
   currentUserId,
+  tenantId,
 }: {
   tickets: Ticket[]
   currentUserId: string
+  tenantId: string
 }) {
+  const router = useRouter()
   const [optimisticTickets, addOptimistic] = React.useOptimistic<OptimisticTicket[], OptimisticAction>(
     tickets,
     applyOptimistic
   )
+
+  useTicketSocket({
+    tenantId,
+    onTicketCreated: () => router.refresh(),
+  })
 
   async function handleResolve(ticketId: string) {
     React.startTransition(() => {

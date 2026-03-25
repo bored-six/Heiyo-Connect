@@ -46,7 +46,7 @@ type ActionResult<T = void> =
 
 /**
  * Creates a new support ticket scoped to the authenticated user's tenant.
- * Triggers AI analysis in the background.
+ * Triggers AI analysis in the background — Pusher emit fires after AI priority is set.
  */
 export async function createTicket(
   formData: z.infer<typeof CreateTicketSchema>
@@ -86,22 +86,18 @@ export async function createTicket(
       },
     });
 
-    // Trigger AI analysis asynchronously (don't block the response)
-    analyzeTicketAsync(ticket.id, validated.subject, validated.description, user.tenantId);
+    // Trigger AI analysis in the background — Pusher emit fires AFTER AI sets priority
+    analyzeTicketAsync(
+      ticket.id,
+      validated.subject,
+      validated.description,
+      user.tenantId,
+      customer.name,
+      customer.email,
+      ticket.createdAt.toISOString()
+    );
 
-    // Notify all agents in the tenant in real-time
-    await emitTicketCreated(user.tenantId, {
-      ticket: {
-        id: ticket.id,
-        subject: ticket.subject,
-        priority: ticket.priority,
-        status: ticket.status,
-        createdAt: ticket.createdAt.toISOString(),
-        customer: { name: customer.name, email: customer.email },
-      },
-    });
-
-    revalidatePath("/dashboard/tickets");
+    revalidatePath("/dashboard");
     return { success: true, data: { ticketId: ticket.id } };
   } catch (error) {
     console.error("createTicket error:", error);
@@ -113,19 +109,22 @@ export async function createTicket(
 }
 
 /**
- * Runs AI analysis on a ticket and updates the DB record.
- * Called in the background — does not affect UX.
+ * Runs AI analysis on a ticket, updates the DB record, then emits Pusher event.
+ * Called in the background — Pusher fires with AI-assigned priority.
  */
 async function analyzeTicketAsync(
   ticketId: string,
   subject: string,
   description: string,
-  tenantId: string
+  tenantId: string,
+  customerName: string,
+  customerEmail: string,
+  createdAt: string
 ) {
   try {
     const analysis = await analyzeTicketWithProvider(subject, description, tenantId);
 
-    await prisma.ticket.update({
+    const updated = await prisma.ticket.update({
       where: { id: ticketId, tenantId },
       data: {
         aiSuggestedResponse: analysis.suggestedResponse,
@@ -135,9 +134,22 @@ async function analyzeTicketAsync(
         // Auto-upgrade priority if AI deems it higher (skip on limit-exceeded fallback)
         ...(!analysis.limitExceeded && { priority: analysis.priority as Priority }),
       },
+      select: { priority: true, status: true },
     });
 
-    // Invalidate usage bar in layout after successful analysis
+    // Emit AFTER AI analysis so the toast contains the AI-assigned priority
+    await emitTicketCreated(tenantId, {
+      ticket: {
+        id: ticketId,
+        subject,
+        priority: updated.priority,
+        status: updated.status,
+        createdAt,
+        customer: { name: customerName, email: customerEmail },
+      },
+    });
+
+    // Invalidate usage bar and dashboard after successful analysis
     const { revalidatePath } = await import("next/cache");
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/settings");
