@@ -2,11 +2,12 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { TicketStatus, Priority } from "@prisma/client"
 import { updateTicketStatus, assignTicket } from "@/actions/tickets"
 import { TicketEmptyState } from "@/components/tickets/empty-state"
 import { useTicketSocket } from "@/hooks/useTicketSocket"
+import { cn } from "@/lib/utils"
 
 const PRIORITY_COLORS: Record<Priority, string> = {
   LOW: "bg-slate-100 text-slate-700",
@@ -23,8 +24,12 @@ const STATUS_COLORS: Record<TicketStatus, string> = {
   CLOSED: "bg-slate-100 text-slate-400",
 }
 
+type SortField = "createdAt" | "priority" | "status" | "messages"
+type SortDir = "asc" | "desc"
+
 type Ticket = {
   id: string
+  ticketNumber: number
   subject: string
   status: TicketStatus
   priority: Priority
@@ -49,14 +54,60 @@ function applyOptimistic(tickets: OptimisticTicket[], action: OptimisticAction):
   })
 }
 
+function SortableHeader({
+  label,
+  field,
+  currentSort,
+  currentDir,
+  className,
+}: {
+  label: string
+  field: SortField
+  currentSort: SortField
+  currentDir: SortDir
+  className?: string
+}) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const isActive = currentSort === field
+  const nextDir: SortDir = isActive && currentDir === "asc" ? "desc" : "asc"
+
+  function handleClick() {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("sort", field)
+    params.set("dir", nextDir)
+    router.push(`${pathname}?${params.toString()}`)
+  }
+
+  return (
+    <th className={cn("text-left px-4 py-3 font-medium text-muted-foreground", className)}>
+      <button
+        onClick={handleClick}
+        className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+      >
+        {label}
+        <span className={cn("text-xs", isActive ? "text-foreground" : "text-muted-foreground/40")}>
+          {isActive ? (currentDir === "asc" ? "▲" : "▼") : "▲"}
+        </span>
+      </button>
+    </th>
+  )
+}
+
 export function TicketTable({
   tickets,
   currentUserId,
   tenantId,
+  currentSort = "createdAt",
+  currentDir = "desc",
 }: {
   tickets: Ticket[]
   currentUserId: string
   tenantId: string
+  currentSort?: SortField
+  currentDir?: SortDir
 }) {
   const router = useRouter()
   const [optimisticTickets, addOptimistic] = React.useOptimistic<OptimisticTicket[], OptimisticAction>(
@@ -92,12 +143,35 @@ export function TicketTable({
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground w-14">#</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">Subject</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Customer</th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Priority</th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Messages</th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Created</th>
+              <SortableHeader
+                label="Status"
+                field="status"
+                currentSort={currentSort}
+                currentDir={currentDir}
+              />
+              <SortableHeader
+                label="Priority"
+                field="priority"
+                currentSort={currentSort}
+                currentDir={currentDir}
+              />
+              <SortableHeader
+                label="Messages"
+                field="messages"
+                currentSort={currentSort}
+                currentDir={currentDir}
+                className="hidden md:table-cell"
+              />
+              <SortableHeader
+                label="Created"
+                field="createdAt"
+                currentSort={currentSort}
+                currentDir={currentDir}
+                className="hidden md:table-cell"
+              />
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">Actions</th>
             </tr>
           </thead>
@@ -111,6 +185,9 @@ export function TicketTable({
 
                 return (
                   <tr key={ticket.id} className="hover:bg-muted/30 transition-colors">
+                    <td className="px-4 py-3 text-muted-foreground font-mono text-xs">
+                      #{String(ticket.ticketNumber).padStart(3, "0")}
+                    </td>
                     <td className="px-4 py-3">
                       <Link
                         href={`/dashboard/tickets/${ticket.id}`}

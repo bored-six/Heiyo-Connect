@@ -84,6 +84,7 @@ model Customer {
 
 model Ticket {
   id             String       @id @default(cuid())
+  ticketNumber   Int          @default(autoincrement())
   subject        String
   description    String       @db.Text
   status         TicketStatus @default(OPEN)

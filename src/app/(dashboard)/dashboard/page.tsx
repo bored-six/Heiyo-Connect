@@ -15,7 +15,11 @@ const AI_PROVIDER_SHORT: Record<AiProvider, string> = {
   MISTRAL: "Mistral Small",
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string; dir?: string }>;
+}) {
   let user;
   try {
     user = await requireUser();
@@ -23,7 +27,15 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
-  const [tickets, aiUsage] = await Promise.all([getTickets(), getAiUsage()]);
+  const params = await searchParams;
+  const validSorts = ["createdAt", "priority", "status", "messages"] as const;
+  type SortField = (typeof validSorts)[number];
+  const sort = validSorts.includes(params.sort as SortField)
+    ? (params.sort as SortField)
+    : "createdAt";
+  const dir = params.dir === "asc" ? "asc" : "desc";
+
+  const [tickets, aiUsage] = await Promise.all([getTickets({ sort, dir }), getAiUsage()]);
 
   const stats = {
     open: tickets.filter((t) => t.status === "OPEN").length,
@@ -73,7 +85,13 @@ export default async function DashboardPage() {
       </div>
 
       {/* Ticket Table — client component with useOptimistic quick actions + Pusher */}
-      <TicketTable tickets={tickets} currentUserId={user.id} tenantId={user.tenantId} />
+      <TicketTable
+        tickets={tickets}
+        currentUserId={user.id}
+        tenantId={user.tenantId}
+        currentSort={sort}
+        currentDir={dir}
+      />
     </main>
   );
 }

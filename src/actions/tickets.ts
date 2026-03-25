@@ -156,16 +156,32 @@ async function analyzeTicketAsync(
   }
 }
 
+type SortField = "createdAt" | "priority" | "status" | "messages";
+type SortDir = "asc" | "desc";
+
 /**
  * Fetches all tickets for the authenticated user's tenant.
  * Enforces tenant isolation at the query level.
+ * Supports sort/dir for column sorting.
  */
 export async function getTickets(filters?: {
   status?: TicketStatus;
   priority?: Priority;
   search?: string;
+  sort?: SortField;
+  dir?: SortDir;
 }) {
   const user = await requireUser();
+
+  const sortField: SortField = filters?.sort ?? "createdAt";
+  const sortDir: SortDir = filters?.dir ?? "desc";
+
+  let orderBy: object;
+  if (sortField === "messages") {
+    orderBy = { messages: { _count: sortDir } };
+  } else {
+    orderBy = { [sortField]: sortDir };
+  }
 
   const tickets = await prisma.ticket.findMany({
     where: {
@@ -186,7 +202,7 @@ export async function getTickets(filters?: {
       assignedAgent: { select: { id: true, name: true, avatarUrl: true } },
       _count: { select: { messages: true } },
     },
-    orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
+    orderBy,
   });
 
   return tickets;
