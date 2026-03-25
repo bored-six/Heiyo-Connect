@@ -5,7 +5,7 @@ import { AiProvider } from "@prisma/client";
 import { Progress } from "@/components/ui/progress";
 
 const PROVIDER_LABELS: Record<AiProvider, string> = {
-  GEMINI: "Gemini 1.5 Flash (Google)",
+  GEMINI: "Gemini 2.0 Flash (Google)",
   GROQ: "Llama 3 8B (Groq)",
   MISTRAL: "Mistral Small (Mistral AI)",
 };
@@ -104,9 +104,6 @@ export default async function SettingsPage() {
                   <p className="text-sm font-medium">{PROVIDER_LABELS[provider]}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {PROVIDER_DESCRIPTIONS[provider]}
-                    {provider === "MISTRAL" && (
-                      <span className="ml-1 text-amber-600">(API key required)</span>
-                    )}
                   </p>
                 </div>
               </label>
