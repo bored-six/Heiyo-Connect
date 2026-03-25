@@ -31,6 +31,7 @@ export async function updateAiProvider(
     });
 
     revalidatePath("/dashboard/settings");
+    revalidatePath("/dashboard");
     return { success: true, data: undefined };
   } catch (error) {
     if (error instanceof z.ZodError) {

@@ -1,20 +1,8 @@
 import { requireUser } from "@/lib/tenant";
 import { redirect } from "next/navigation";
-import { getAiUsage, updateAiProvider } from "@/actions/settings";
-import { AiProvider } from "@prisma/client";
+import { getAiUsage } from "@/actions/settings";
 import { Progress } from "@/components/ui/progress";
-
-const PROVIDER_LABELS: Record<AiProvider, string> = {
-  GEMINI: "Gemini 2.0 Flash (Google)",
-  GROQ: "Llama 3 8B (Groq)",
-  MISTRAL: "Mistral Small (Mistral AI)",
-};
-
-const PROVIDER_DESCRIPTIONS: Record<AiProvider, string> = {
-  GEMINI: "Best quality. Recommended for most teams.",
-  GROQ: "Ultra-fast inference. Great for high-volume support.",
-  MISTRAL: "European AI. Strong reasoning, privacy-focused.",
-};
+import { AiProviderForm } from "@/components/settings/ai-provider-form";
 
 export default async function SettingsPage() {
   try {
@@ -75,48 +63,7 @@ export default async function SettingsPage() {
           </p>
         </div>
 
-        <form
-          action={async (formData: FormData) => {
-            "use server";
-            const provider = formData.get("aiProvider") as AiProvider;
-            await updateAiProvider({ aiProvider: provider });
-          }}
-          className="space-y-3"
-        >
-          <div className="grid gap-3">
-            {(Object.keys(PROVIDER_LABELS) as AiProvider[]).map((provider) => (
-              <label
-                key={provider}
-                className={`flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-colors ${
-                  aiProvider === provider
-                    ? "border-primary bg-primary/5"
-                    : "hover:border-muted-foreground/40"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="aiProvider"
-                  value={provider}
-                  defaultChecked={aiProvider === provider}
-                  className="mt-0.5 accent-primary"
-                />
-                <div>
-                  <p className="text-sm font-medium">{PROVIDER_LABELS[provider]}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {PROVIDER_DESCRIPTIONS[provider]}
-                  </p>
-                </div>
-              </label>
-            ))}
-          </div>
-
-          <button
-            type="submit"
-            className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            Save Provider
-          </button>
-        </form>
+        <AiProviderForm currentProvider={aiProvider} />
       </section>
     </main>
   );

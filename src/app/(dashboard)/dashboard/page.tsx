@@ -6,6 +6,14 @@ import { redirect } from "next/navigation";
 import { TicketTable } from "@/components/dashboard/ticket-table";
 import { CommandPalette } from "@/components/dashboard/command-palette";
 import { CreateTicketButton } from "@/components/dashboard/create-ticket-button";
+import { getAiUsage } from "@/actions/settings";
+import { AiProvider } from "@prisma/client";
+
+const AI_PROVIDER_SHORT: Record<AiProvider, string> = {
+  GEMINI: "Gemini 2.0 Flash",
+  GROQ: "Llama 3 (Groq)",
+  MISTRAL: "Mistral Small",
+};
 
 export default async function DashboardPage() {
   let user;
@@ -15,7 +23,7 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
-  const tickets = await getTickets();
+  const [tickets, aiUsage] = await Promise.all([getTickets(), getAiUsage()]);
 
   const stats = {
     open: tickets.filter((t) => t.status === "OPEN").length,
@@ -35,6 +43,12 @@ export default async function DashboardPage() {
           <p className="text-sm text-muted-foreground mt-1">
             Welcome back, {user.name ?? user.email}
           </p>
+          {aiUsage && (
+            <span className="inline-flex items-center gap-1.5 mt-2 text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">
+              <span className="size-1.5 rounded-full bg-emerald-500" />
+              Active AI: {AI_PROVIDER_SHORT[aiUsage.aiProvider]}
+            </span>
+          )}
         </div>
         {/* Search + Create — CommandPalette renders its own trigger button */}
         <div className="flex items-center gap-2 shrink-0">
