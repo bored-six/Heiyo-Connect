@@ -3,6 +3,14 @@
 <!-- Format: ## [YYYY-MM-DD] - Category -->
 <!-- Max 50 entries. Promote stable patterns to steering docs. -->
 
+## [2026-03-26] - HC-007 Patterns
+
+- **Landing page uses inline styles for the Midnight theme** — semantic Tailwind CSS variable tokens (`bg-background`, `text-foreground`) follow the app's light/dark theme. For a fixed-dark marketing page, use literal hex/rgba inline styles so the page is always dark regardless of the user's OS theme.
+- **Prisma `@default(now())` fields can be overridden** — providing `createdAt` explicitly in `prisma.create()` works even when the field has `@default(now())`. The default only applies when the field is omitted.
+- **`TicketEmptyState` `colSpan` was wrong (6 vs 7 columns)** — the table has 7 columns (Subject, Customer, Status, Priority, Messages, Created, Actions). Always count columns before hardcoding colSpan.
+- **Client components CAN import server actions** — `"use client"` + `import { myAction } from "@/actions/foo"` is valid. Use `useTransition` to show pending state while the action runs.
+- **CommandPalette keyboard-only UX** — previously opened only via Cmd+K, invisible to touch users. Fix: render a visible trigger button inside the component and co-locate open state there. Move the component into the dashboard header so the button appears naturally in the UI chrome.
+
 ## [2026-03-23] - Workflow
 
 - Claude repeatedly skips ask-first gate, post-task commit, learnings/PRD/steering updates. Hard gates added to top of CLAUDE.md to force compliance — buried rules are ignored.
@@ -25,6 +33,13 @@
 ## [2026-03-25] - Pre-deployment Checklist
 
 - **Clerk Client Trust must be turned ON before deploying to Vercel/production.** It was disabled during local dev to allow demo account login without email verification. Configure → User & Authentication → Password → Client Trust toggle.
+
+## [2026-03-25] - HC-005 Patterns
+
+- Pusher toast with AI priority: move `emitTicketCreated` from `createTicket` into `analyzeTicketAsync` (fire after `prisma.ticket.update`). Use `select: { priority, status }` on the update to get the final AI priority without a second query.
+- `CommandPalette` returns `null` early when closed — to keep a child dialog alive across open/close cycles, remove the early return and use `{open && (...)}` conditional rendering instead. The dialog lives outside the `{open && ...}` block.
+- `@base-ui/react` Dialog controlled mode: `open` + `onOpenChange` props work the same as Radix UI.
+- Next.js 16 dynamic route params must be `await`-ed: `const { id } = await params` (params is a Promise in App Router).
 
 ## [2026-03-25] - HC-004 Known Issues / Follow-ups
 
