@@ -89,7 +89,7 @@ export function CommandPalette() {
 
   async function handleLogout() {
     close()
-    await signOut({ redirectUrl: "/sign-in" })
+    await signOut({ redirectUrl: "/" })
   }
 
   function handleNewTicket() {
