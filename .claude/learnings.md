@@ -3,6 +3,13 @@
 <!-- Format: ## [YYYY-MM-DD] - Category -->
 <!-- Max 50 entries. Promote stable patterns to steering docs. -->
 
+## [2026-03-26] - HC-013 Patterns
+
+- **Arctic Frost theme: `dark` class on `<html>` was the root cause of all dark overrides** — removing it from `layout.tsx` className is the single toggle that makes all Shadcn/Tailwind semantic tokens flip to light. Without it, even correct `:root` variables get overridden by the `@custom-variant dark` selector.
+- **Landing page inline styles intentionally changed (HC-013)** — HC-007 pattern ("always dark, use inline hex") is now superseded. After HC-013, the landing page follows Arctic Frost and uses inline hex values for the light palette. If a future ticket reverts to dark marketing, restore inline styles — don't use semantic tokens.
+- **ClerkProvider `baseTheme: undefined` forces Clerk's own light mode** — without this, Clerk may inherit the OS dark preference and render dark sign-in/sign-up modals. Setting `variables: { colorPrimary, colorBackground }` aligns the Clerk UI with the app palette.
+- **Tooltip name matters for code clarity, not theme** — `MidnightTooltip` already used CSS variables (`bg-card`, `border-border`) so it was always theme-aware. Renaming to `ChartTooltip` was cosmetic. The real fix was updating the `:root` vars.
+
 ## [2026-03-26] - HC-011 Patterns
 
 - **Public API routes for unauthenticated ticket creation**: server actions (`"use server"`) depend on Clerk auth context — `requireUser()` throws if no session. Unauthenticated submissions must go through API route handlers (`route.ts`) which can bypass auth explicitly. Pattern: POST `/api/public-ticket` with slug+form fields → tenant lookup → ticket create → fire-and-forget AI + Pusher.
