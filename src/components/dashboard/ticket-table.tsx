@@ -208,22 +208,11 @@ export function TicketTable({
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      {ticket.priority === "CRITICAL" ? (
-                        <span className="relative inline-flex items-center">
-                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-20" />
-                          <span
-                            className={`relative inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${PRIORITY_COLORS[ticket.priority]}`}
-                          >
-                            {ticket.priority}
-                          </span>
-                        </span>
-                      ) : (
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${PRIORITY_COLORS[ticket.priority]}`}
-                        >
-                          {ticket.priority}
-                        </span>
-                      )}
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${PRIORITY_COLORS[ticket.priority]}`}
+                      >
+                        {ticket.priority}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
                       {ticket._count.messages}
