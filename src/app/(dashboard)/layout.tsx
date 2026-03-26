@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { NavLogoutButton } from "@/components/dashboard/nav-logout-button";
 import { NavUsageBar } from "@/components/dashboard/nav-usage-bar";
-import { SparklesIcon } from "lucide-react";
 import Link from "next/link";
 
 async function getNavUsage(userId: string) {
@@ -41,10 +40,15 @@ export default async function DashboardLayout({
       <nav style={{ borderBottom: "1px solid #E2E8F0" }}>
         <div className="px-6 h-14 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <SparklesIcon className="h-4 w-4" style={{ color: "#6366F1" }} />
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect width="24" height="24" rx="6" fill="#6366F1"/>
+              <rect x="5.5" y="6" width="3" height="12" rx="1.5" fill="white"/>
+              <rect x="15.5" y="6" width="3" height="12" rx="1.5" fill="white"/>
+              <rect x="5.5" y="10" width="13" height="3.5" rx="1.5" fill="white"/>
+            </svg>
             <span className="font-semibold text-base tracking-tight" style={{ color: "#1E293B" }}>
-              Heiyo Connect
+              Heiyo
             </span>
           </Link>
 

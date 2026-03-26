@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <style>
+      @keyframes hc-pulse {
+        0%, 100% { filter: drop-shadow(0 0 2px rgba(99,102,241,0.45)); }
+        50%       { filter: drop-shadow(0 0 7px rgba(99,102,241,0.85)); }
+      }
+      .wrap { animation: hc-pulse 3s ease-in-out infinite; }
+    </style>
+  </defs>
+  <g class="wrap">
+    <rect width="32" height="32" rx="7" fill="#6366F1"/>
+    <text
+      x="16" y="22"
+      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif"
+      font-size="13"
+      font-weight="800"
+      letter-spacing="-0.5"
+      text-anchor="middle"
+      fill="white"
+    >HC</text>
+  </g>
+</svg>
