@@ -15,8 +15,8 @@ const isPublicRoute = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
 
-  // Redirect authenticated users away from the landing page to the dashboard
-  if (userId && req.nextUrl.pathname === "/") {
+  // Redirect authenticated users away from landing/auth pages to the dashboard
+  if (userId && (req.nextUrl.pathname === "/" || req.nextUrl.pathname.startsWith("/sign-in") || req.nextUrl.pathname.startsWith("/sign-up"))) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
