@@ -24,6 +24,15 @@ const STATUS_COLORS: Record<TicketStatus, string> = {
   CLOSED: "bg-slate-500/10 text-slate-500",
 }
 
+// Inline styles for status pill — enables smooth CSS color transitions between states
+const STATUS_STYLE: Record<TicketStatus, { backgroundColor: string; color: string }> = {
+  OPEN:                  { backgroundColor: "rgba(16,185,129,0.15)",  color: "#34d399" },
+  IN_PROGRESS:           { backgroundColor: "rgba(59,130,246,0.15)",  color: "#60a5fa" },
+  WAITING_ON_CUSTOMER:   { backgroundColor: "rgba(245,158,11,0.15)",  color: "#fbbf24" },
+  RESOLVED:              { backgroundColor: "rgba(100,116,139,0.15)", color: "#94a3b8" },
+  CLOSED:                { backgroundColor: "rgba(100,116,139,0.10)", color: "#64748b" },
+}
+
 type SortField = "createdAt" | "priority" | "status" | "messages"
 type SortDir = "asc" | "desc"
 
@@ -202,7 +211,11 @@ export function TicketTable({
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLORS[ticket.status]}`}
+                        style={{
+                          ...STATUS_STYLE[ticket.status],
+                          transition: "background-color 350ms ease, color 350ms ease",
+                        }}
+                        className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                       >
                         {ticket.status.replace(/_/g, " ")}
                       </span>

@@ -265,6 +265,44 @@ export async function updateTicketStatus(
 }
 
 /**
+ * Returns the 10 most recently updated tickets for the activity timeline panel.
+ */
+export async function getRecentActivity() {
+  const user = await requireUser();
+
+  const tickets = await prisma.ticket.findMany({
+    where: { tenantId: user.tenantId },
+    orderBy: { updatedAt: "desc" },
+    take: 10,
+    select: {
+      id: true,
+      ticketNumber: true,
+      subject: true,
+      status: true,
+      priority: true,
+      createdAt: true,
+      updatedAt: true,
+      resolvedAt: true,
+      assignedAgentId: true,
+    },
+  });
+
+  return tickets.map((t) => {
+    let event: string;
+    if (t.resolvedAt && Math.abs(t.resolvedAt.getTime() - t.updatedAt.getTime()) < 5000) {
+      event = "Resolved";
+    } else if (Math.abs(t.createdAt.getTime() - t.updatedAt.getTime()) < 5000) {
+      event = "Created";
+    } else if (t.assignedAgentId) {
+      event = "Assigned";
+    } else {
+      event = "Updated";
+    }
+    return { ...t, event };
+  });
+}
+
+/**
  * Returns 7-day daily ticket counts for sparkline charts on the dashboard.
  * Each array index = days ago (index 0 = 6 days ago, index 6 = today).
  */

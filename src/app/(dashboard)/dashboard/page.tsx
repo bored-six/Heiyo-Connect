@@ -1,4 +1,4 @@
-import { getTickets, getSparklineData } from "@/actions/tickets";
+import { getTickets, getSparklineData, getRecentActivity } from "@/actions/tickets";
 
 export const dynamic = "force-dynamic";
 import { requireUser } from "@/lib/tenant";
@@ -8,6 +8,8 @@ import { TicketFilters } from "@/components/dashboard/ticket-filters";
 import { CommandPalette } from "@/components/dashboard/command-palette";
 import { CreateTicketButton } from "@/components/dashboard/create-ticket-button";
 import { StatCard } from "@/components/dashboard/stat-card";
+import { DonutCard } from "@/components/dashboard/donut-card";
+import { ActivityTimeline } from "@/components/dashboard/activity-timeline";
 import { getAiUsage } from "@/actions/settings";
 import { AiProvider, TicketStatus, Priority } from "@prisma/client";
 
@@ -47,10 +49,11 @@ export default async function DashboardPage({
     ? (params.priority as Priority)
     : undefined;
 
-  const [tickets, aiUsage, sparkline] = await Promise.all([
+  const [tickets, aiUsage, sparkline, activity] = await Promise.all([
     getTickets({ sort, dir, status, priority }),
     getAiUsage(),
     getSparklineData(),
+    getRecentActivity(),
   ]);
 
   const stats = {
@@ -80,6 +83,7 @@ export default async function DashboardPage({
         </div>
         {/* Search + Create — CommandPalette renders its own trigger button */}
         <div className="flex items-center gap-2 shrink-0">
+          <ActivityTimeline activities={activity} />
           <CommandPalette />
           <CreateTicketButton />
         </div>
@@ -108,12 +112,9 @@ export default async function DashboardPage({
           sparkline={sparkline.critical}
           sparklineColor="#ef4444"
         />
-        <StatCard
-          label="Resolved"
-          value={stats.resolved}
-          colorClass="text-slate-500"
-          sparkline={sparkline.resolved}
-          sparklineColor="#64748b"
+        <DonutCard
+          resolved={stats.resolved}
+          total={tickets.length}
         />
       </div>
 
