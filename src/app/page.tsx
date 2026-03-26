@@ -17,14 +17,14 @@ export default async function Home() {
   return (
     <main
       className="min-h-screen"
-      style={{ backgroundColor: "#09090f", color: "#f1f5f9" }}
+      style={{ backgroundColor: "#F8FAFC", color: "#1E293B" }}
     >
       {/* ── Nav ─────────────────────────────────────────────────────── */}
-      <nav style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+      <nav style={{ borderBottom: "1px solid #E2E8F0" }}>
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <SparklesIcon className="h-4 w-4" style={{ color: "#818cf8" }} />
-            <span className="font-semibold text-base tracking-tight text-white">
+            <SparklesIcon className="h-4 w-4" style={{ color: "#6366F1" }} />
+            <span className="font-semibold text-base tracking-tight" style={{ color: "#1E293B" }}>
               Heiyo Connect
             </span>
           </div>
@@ -32,7 +32,7 @@ export default async function Home() {
             <Link
               href="/sign-in"
               className="text-sm transition-colors"
-              style={{ color: "#94a3b8" }}
+              style={{ color: "#64748B" }}
             >
               Sign in
             </Link>
@@ -40,9 +40,9 @@ export default async function Home() {
               href="/sign-up"
               className="inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-medium transition-all"
               style={{
-                background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                background: "linear-gradient(135deg, #6366F1, #4F46E5)",
                 color: "white",
-                boxShadow: "0 0 16px rgba(99,102,241,0.3)",
+                boxShadow: "0 2px 8px rgba(99,102,241,0.25)",
               }}
             >
               Get started
@@ -57,9 +57,9 @@ export default async function Home() {
         <div
           className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs mb-6"
           style={{
-            border: "1px solid rgba(99,102,241,0.3)",
-            backgroundColor: "rgba(99,102,241,0.08)",
-            color: "#a5b4fc",
+            border: "1px solid #C7D2FE",
+            backgroundColor: "#EEF2FF",
+            color: "#6366F1",
           }}
         >
           <BotIcon className="h-3.5 w-3.5" />
@@ -68,13 +68,13 @@ export default async function Home() {
 
         <h1
           className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight mb-4"
-          style={{ color: "#f8fafc" }}
+          style={{ color: "#1E293B" }}
         >
           Support at the{" "}
           <span
             style={{
               background:
-                "linear-gradient(135deg, #a5b4fc 0%, #818cf8 50%, #6366f1 100%)",
+                "linear-gradient(135deg, #6366F1 0%, #818CF8 50%, #A5B4FC 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
@@ -86,14 +86,14 @@ export default async function Home() {
 
         <p
           className="text-lg max-w-xl mx-auto mb-3 font-medium tracking-wide"
-          style={{ color: "#cbd5e1" }}
+          style={{ color: "#475569" }}
         >
           Multi-tenant · Real-time · Orchestrated.
         </p>
 
         <p
           className="text-base max-w-xl mx-auto mb-10 leading-relaxed"
-          style={{ color: "#94a3b8" }}
+          style={{ color: "#64748B" }}
         >
           Heiyo Connect gives your team AI-drafted replies, auto-prioritised
           queues, and live Pusher toasts — so customers get faster answers and
@@ -105,9 +105,9 @@ export default async function Home() {
             href="/api/demo"
             className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold transition-all"
             style={{
-              background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+              background: "linear-gradient(135deg, #6366F1, #4F46E5)",
               color: "white",
-              boxShadow: "0 0 28px rgba(99,102,241,0.4)",
+              boxShadow: "0 4px 16px rgba(99,102,241,0.3)",
             }}
           >
             Try live demo
@@ -117,27 +117,27 @@ export default async function Home() {
             href="/sign-up"
             className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium transition-colors"
             style={{
-              border: "1px solid rgba(255,255,255,0.1)",
-              color: "#e2e8f0",
-              backgroundColor: "rgba(255,255,255,0.04)",
+              border: "1px solid #E2E8F0",
+              color: "#475569",
+              backgroundColor: "#FFFFFF",
             }}
           >
             Create free account
           </Link>
         </div>
 
-        <p className="text-xs mb-12" style={{ color: "#64748b" }}>
+        <p className="text-xs mb-12" style={{ color: "#94A3B8" }}>
           No account required · Pre-loaded with real-looking data · Read-only access
         </p>
 
-        {/* ── Dashboard Mockup with Glow ──────────────────────────── */}
+        {/* ── Dashboard Mockup ────────────────────────────────────── */}
         <div className="relative max-w-4xl mx-auto">
-          {/* Glow blob behind the mockup */}
+          {/* Soft pale-blue radial gradient */}
           <div
             className="absolute inset-x-0 top-0 -translate-y-1/3 h-72 blur-3xl pointer-events-none"
             style={{
               background:
-                "radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.35) 0%, rgba(79,70,229,0.15) 50%, transparent 70%)",
+                "radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.08) 0%, rgba(14,165,233,0.05) 50%, transparent 70%)",
             }}
           />
 
@@ -145,25 +145,24 @@ export default async function Home() {
           <div
             className="relative rounded-xl overflow-hidden text-left"
             style={{
-              border: "1px solid rgba(99,102,241,0.25)",
-              backgroundColor: "rgba(15,15,25,0.95)",
-              boxShadow:
-                "0 0 0 1px rgba(99,102,241,0.1), 0 32px 64px -16px rgba(0,0,0,0.6)",
+              border: "1px solid #E2E8F0",
+              backgroundColor: "#FFFFFF",
+              boxShadow: "0 4px 24px rgba(99,102,241,0.06), 0 1px 3px rgba(0,0,0,0.06)",
             }}
           >
             {/* Mockup top bar */}
             <div
               className="flex items-center gap-2 px-4 py-3"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+              style={{ borderBottom: "1px solid #E2E8F0", backgroundColor: "#F8FAFC" }}
             >
-              <div className="h-2.5 w-2.5 rounded-full bg-red-500 opacity-70" />
-              <div className="h-2.5 w-2.5 rounded-full bg-yellow-500 opacity-70" />
-              <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 opacity-70" />
+              <div className="h-2.5 w-2.5 rounded-full bg-red-400 opacity-70" />
+              <div className="h-2.5 w-2.5 rounded-full bg-yellow-400 opacity-70" />
+              <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 opacity-70" />
               <div
                 className="ml-3 flex-1 rounded text-xs px-3 py-0.5 max-w-64"
                 style={{
-                  backgroundColor: "rgba(255,255,255,0.05)",
-                  color: "#64748b",
+                  backgroundColor: "#F1F5F9",
+                  color: "#64748B",
                 }}
               >
                 heiyo.app/dashboard
@@ -177,11 +176,11 @@ export default async function Home() {
                 <div>
                   <div
                     className="text-sm font-semibold mb-0.5"
-                    style={{ color: "#f1f5f9" }}
+                    style={{ color: "#1E293B" }}
                   >
                     Acme Corp — Support Dashboard
                   </div>
-                  <div className="text-xs" style={{ color: "#64748b" }}>
+                  <div className="text-xs" style={{ color: "#94A3B8" }}>
                     Welcome back, Alex
                   </div>
                 </div>
@@ -189,9 +188,9 @@ export default async function Home() {
                 <div
                   className="flex items-center gap-1.5 text-xs rounded-full px-2.5 py-1"
                   style={{
-                    backgroundColor: "rgba(16,185,129,0.1)",
-                    color: "#34d399",
-                    border: "1px solid rgba(16,185,129,0.2)",
+                    backgroundColor: "#F0FDF4",
+                    color: "#16A34A",
+                    border: "1px solid #BBF7D0",
                   }}
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -202,20 +201,20 @@ export default async function Home() {
               {/* Stat cards */}
               <div className="grid grid-cols-4 gap-3 mb-5">
                 {[
-                  { label: "Open", value: "8", color: "#34d399" },
-                  { label: "In Progress", value: "3", color: "#60a5fa" },
-                  { label: "Critical", value: "2", color: "#f87171" },
-                  { label: "Resolved", value: "4", color: "#94a3b8" },
+                  { label: "Open", value: "8", color: "#6366F1" },
+                  { label: "In Progress", value: "3", color: "#0EA5E9" },
+                  { label: "Critical", value: "2", color: "#EF4444" },
+                  { label: "Resolved", value: "4", color: "#64748B" },
                 ].map((s) => (
                   <div
                     key={s.label}
                     className="rounded-lg p-3"
                     style={{
-                      backgroundColor: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.07)",
+                      backgroundColor: "#F8FAFC",
+                      border: "1px solid #E2E8F0",
                     }}
                   >
-                    <div className="text-xs mb-1" style={{ color: "#64748b" }}>
+                    <div className="text-xs mb-1" style={{ color: "#94A3B8" }}>
                       {s.label}
                     </div>
                     <div
@@ -231,16 +230,16 @@ export default async function Home() {
               {/* Ticket rows */}
               <div
                 className="rounded-lg overflow-hidden"
-                style={{ border: "1px solid rgba(255,255,255,0.07)" }}
+                style={{ border: "1px solid #E2E8F0" }}
               >
                 {/* Table header */}
                 <div
                   className="grid text-xs px-4 py-2"
                   style={{
                     gridTemplateColumns: "1fr 140px 90px 90px",
-                    borderBottom: "1px solid rgba(255,255,255,0.07)",
-                    color: "#64748b",
-                    backgroundColor: "rgba(255,255,255,0.02)",
+                    borderBottom: "1px solid #E2E8F0",
+                    color: "#94A3B8",
+                    backgroundColor: "#F8FAFC",
                   }}
                 >
                   <span>Subject</span>
@@ -249,47 +248,46 @@ export default async function Home() {
                   <span>Priority</span>
                 </div>
 
-                {/* Ticket rows */}
                 {[
                   {
                     subject: "API returning 503 for enterprise accounts",
                     customer: "Priya M.",
                     status: "IN PROGRESS",
-                    statusColor: "#60a5fa",
-                    statusBg: "rgba(96,165,250,0.12)",
+                    statusColor: "#2563EB",
+                    statusBg: "#DBEAFE",
                     priority: "CRITICAL",
-                    priorityColor: "#f87171",
-                    priorityBg: "rgba(248,113,113,0.12)",
+                    priorityColor: "#DC2626",
+                    priorityBg: "#FEE2E2",
                   },
                   {
                     subject: "Data export contains rows from different tenant",
                     customer: "James O.",
                     status: "OPEN",
-                    statusColor: "#34d399",
-                    statusBg: "rgba(52,211,153,0.12)",
+                    statusColor: "#7C3AED",
+                    statusBg: "#EDE9FE",
                     priority: "CRITICAL",
-                    priorityColor: "#f87171",
-                    priorityBg: "rgba(248,113,113,0.12)",
+                    priorityColor: "#DC2626",
+                    priorityBg: "#FEE2E2",
                   },
                   {
                     subject: "SSO broken after maintenance window",
                     customer: "Hannah P.",
                     status: "IN PROGRESS",
-                    statusColor: "#60a5fa",
-                    statusBg: "rgba(96,165,250,0.12)",
+                    statusColor: "#2563EB",
+                    statusBg: "#DBEAFE",
                     priority: "HIGH",
-                    priorityColor: "#fb923c",
-                    priorityBg: "rgba(251,146,60,0.12)",
+                    priorityColor: "#EA580C",
+                    priorityBg: "#FFEDD5",
                   },
                   {
                     subject: "Analytics charts blank on Safari 16",
                     customer: "Carlos R.",
                     status: "OPEN",
-                    statusColor: "#34d399",
-                    statusBg: "rgba(52,211,153,0.12)",
+                    statusColor: "#7C3AED",
+                    statusBg: "#EDE9FE",
                     priority: "MEDIUM",
-                    priorityColor: "#60a5fa",
-                    priorityBg: "rgba(96,165,250,0.12)",
+                    priorityColor: "#0369A1",
+                    priorityBg: "#E0F2FE",
                   },
                 ].map((row, i) => (
                   <div
@@ -297,23 +295,23 @@ export default async function Home() {
                     className="grid items-center px-4 py-2.5 text-xs"
                     style={{
                       gridTemplateColumns: "1fr 140px 90px 90px",
-                      borderBottom:
-                        i < 3 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                      borderBottom: i < 3 ? "1px solid #F1F5F9" : "none",
                     }}
                   >
                     <span
                       className="truncate pr-4 font-medium"
-                      style={{ color: "#e2e8f0" }}
+                      style={{ color: "#1E293B" }}
                     >
                       {row.subject}
                     </span>
-                    <span style={{ color: "#94a3b8" }}>{row.customer}</span>
+                    <span style={{ color: "#64748B" }}>{row.customer}</span>
                     <span>
                       <span
                         className="rounded px-1.5 py-0.5 text-xs font-medium"
                         style={{
                           color: row.statusColor,
                           backgroundColor: row.statusBg,
+                          border: `0.5px solid ${row.statusColor}40`,
                         }}
                       >
                         {row.status}
@@ -325,6 +323,7 @@ export default async function Home() {
                         style={{
                           color: row.priorityColor,
                           backgroundColor: row.priorityBg,
+                          border: `0.5px solid ${row.priorityColor}40`,
                         }}
                       >
                         {row.priority}
@@ -338,22 +337,22 @@ export default async function Home() {
               <div
                 className="mt-4 flex items-start gap-3 rounded-lg px-4 py-3 text-xs"
                 style={{
-                  backgroundColor: "rgba(99,102,241,0.1)",
-                  border: "1px solid rgba(99,102,241,0.25)",
+                  backgroundColor: "#EEF2FF",
+                  border: "1px solid #C7D2FE",
                 }}
               >
                 <ZapIcon
                   className="h-3.5 w-3.5 shrink-0 mt-0.5"
-                  style={{ color: "#818cf8" }}
+                  style={{ color: "#6366F1" }}
                 />
                 <div>
-                  <span style={{ color: "#a5b4fc" }} className="font-semibold">
+                  <span style={{ color: "#4338CA" }} className="font-semibold">
                     New ticket · AI priority:{" "}
                   </span>
-                  <span style={{ color: "#f87171" }} className="font-semibold">
+                  <span style={{ color: "#DC2626" }} className="font-semibold">
                     CRITICAL
                   </span>
-                  <span style={{ color: "#64748b" }}>
+                  <span style={{ color: "#64748B" }}>
                     {" "}
                     · "Production payment gateway down" — just now
                   </span>
@@ -368,25 +367,25 @@ export default async function Home() {
       <section className="max-w-6xl mx-auto px-6 py-10">
         <p
           className="text-center text-xs uppercase tracking-widest mb-6"
-          style={{ color: "#475569" }}
+          style={{ color: "#94A3B8" }}
         >
           Built with production-grade tooling
         </p>
         <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
           {[
-            { label: "Next.js 16", dot: "#f1f5f9" },
-            { label: "React 19", dot: "#61dafb" },
+            { label: "Next.js 16", dot: "#1E293B" },
+            { label: "React 19", dot: "#61DAFB" },
             { label: "Pusher Channels", dot: "#300D4F" },
-            { label: "Gemini 2.0 Flash", dot: "#4285f4" },
-            { label: "Prisma ORM", dot: "#5a67d8" },
-            { label: "Clerk Auth", dot: "#7c3aed" },
+            { label: "Gemini 2.0 Flash", dot: "#4285F4" },
+            { label: "Prisma ORM", dot: "#5A67D8" },
+            { label: "Clerk Auth", dot: "#7C3AED" },
             { label: "PostgreSQL", dot: "#336791" },
-            { label: "Tailwind CSS 4", dot: "#38bdf8" },
+            { label: "Tailwind CSS 4", dot: "#38BDF8" },
           ].map((t) => (
             <div
               key={t.label}
               className="flex items-center gap-2 text-sm font-medium"
-              style={{ color: "#94a3b8" }}
+              style={{ color: "#64748B" }}
             >
               <span
                 className="h-2 w-2 rounded-full shrink-0"
@@ -404,17 +403,17 @@ export default async function Home() {
           {[
             {
               icon: (
-                <BotIcon className="h-5 w-5" style={{ color: "#818cf8" }} />
+                <BotIcon className="h-5 w-5" style={{ color: "#6366F1" }} />
               ),
-              accent: "#6366f1",
+              iconBg: "#EEF2FF",
               title: "AI Triage & Reply Drafts",
               body: "Every ticket is scored for urgency and paired with an AI-drafted response — context-aware, ready to send in one click. Gemini 2.0 Flash runs triage in the background without blocking the agent.",
             },
             {
               icon: (
-                <ZapIcon className="h-5 w-5" style={{ color: "#34d399" }} />
+                <ZapIcon className="h-5 w-5" style={{ color: "#0EA5E9" }} />
               ),
-              accent: "#10b981",
+              iconBg: "#E0F2FE",
               title: "Real-time Pusher Toasts",
               body: "Pusher Channels keeps every agent in sync. New tickets stream live with AI-assigned priority the moment analysis completes — no refresh needed, no missed escalations.",
             },
@@ -422,37 +421,37 @@ export default async function Home() {
               icon: (
                 <BarChart3Icon
                   className="h-5 w-5"
-                  style={{ color: "#f59e0b" }}
+                  style={{ color: "#14B8A6" }}
                 />
               ),
-              accent: "#f59e0b",
+              iconBg: "#F0FDFA",
               title: "Executive Analytics",
               body: "Track AI efficiency scores, response-time savings, and priority distributions with a live analytics dashboard built for leadership review.",
             },
           ].map((f) => (
             <div
               key={f.title}
-              className="rounded-xl p-5 relative overflow-hidden"
+              className="rounded-xl p-5"
               style={{
-                border: "1px solid rgba(255,255,255,0.07)",
-                backgroundColor: "rgba(255,255,255,0.02)",
+                border: "1px solid #E2E8F0",
+                backgroundColor: "#FFFFFF",
               }}
             >
-              {/* Subtle glow blob */}
               <div
-                className="absolute -top-8 -right-8 h-24 w-24 rounded-full opacity-10 blur-3xl pointer-events-none"
-                style={{ background: f.accent }}
-              />
-              <div className="mb-3 relative">{f.icon}</div>
+                className="inline-flex rounded-lg p-2 mb-3"
+                style={{ backgroundColor: f.iconBg }}
+              >
+                {f.icon}
+              </div>
               <h3
-                className="font-semibold mb-1.5 relative"
-                style={{ color: "#f1f5f9" }}
+                className="font-semibold mb-1.5"
+                style={{ color: "#1E293B" }}
               >
                 {f.title}
               </h3>
               <p
-                className="text-sm leading-relaxed relative"
-                style={{ color: "#94a3b8" }}
+                className="text-sm leading-relaxed"
+                style={{ color: "#64748B" }}
               >
                 {f.body}
               </p>
@@ -464,17 +463,16 @@ export default async function Home() {
         <div
           className="rounded-xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6"
           style={{
-            background:
-              "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(79,70,229,0.06))",
-            border: "1px solid rgba(99,102,241,0.22)",
+            background: "#EEF2FF",
+            border: "1px solid #C7D2FE",
           }}
         >
           <div>
             <div
               className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium mb-2"
               style={{
-                backgroundColor: "rgba(99,102,241,0.15)",
-                color: "#a5b4fc",
+                backgroundColor: "#E0E7FF",
+                color: "#4338CA",
               }}
             >
               <ShieldIcon className="h-3 w-3" />
@@ -482,11 +480,11 @@ export default async function Home() {
             </div>
             <h3
               className="text-xl font-semibold mb-1"
-              style={{ color: "#f8fafc" }}
+              style={{ color: "#1E293B" }}
             >
               Ready to see it in action?
             </h3>
-            <p className="text-sm" style={{ color: "#94a3b8" }}>
+            <p className="text-sm" style={{ color: "#64748B" }}>
               Explore a fully populated support dashboard — no sign-up needed.
             </p>
           </div>
@@ -494,9 +492,9 @@ export default async function Home() {
             href="/api/demo"
             className="shrink-0 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-all whitespace-nowrap"
             style={{
-              background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+              background: "linear-gradient(135deg, #6366F1, #4F46E5)",
               color: "white",
-              boxShadow: "0 0 20px rgba(99,102,241,0.3)",
+              boxShadow: "0 4px 12px rgba(99,102,241,0.3)",
             }}
           >
             Open demo dashboard
@@ -507,7 +505,7 @@ export default async function Home() {
         {/* ── Footer ─────────────────────────────────────────────────── */}
         <p
           className="text-center text-xs mt-10"
-          style={{ color: "#475569" }}
+          style={{ color: "#94A3B8" }}
         >
           Built with Next.js 16 · React 19 · Clerk · Prisma · Pusher Channels · Gemini 2.0
         </p>

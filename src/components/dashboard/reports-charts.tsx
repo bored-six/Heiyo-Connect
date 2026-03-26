@@ -51,7 +51,7 @@ function FadeUp({
 }
 
 // ─── Custom tooltip ───────────────────────────────────────────────────────────
-function MidnightTooltip({
+function ChartTooltip({
   active,
   payload,
   label,
@@ -152,7 +152,7 @@ export function ReportsCharts({ data }: { data: TenantAnalytics }) {
 
   const aiVsManual = [
     { name: "AI Success", value: aiSuccesses, fill: "#6366f1" },
-    { name: "Manual", value: manualFallbacks, fill: "#64748b" },
+    { name: "Manual", value: manualFallbacks, fill: "#14B8A6" },
   ]
 
   return (
@@ -200,8 +200,8 @@ export function ReportsCharts({ data }: { data: TenantAnalytics }) {
                   <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="gradResolved" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#0EA5E9" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#0EA5E9" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -217,7 +217,7 @@ export function ReportsCharts({ data }: { data: TenantAnalytics }) {
                 axisLine={false}
                 tickLine={false}
               />
-              <Tooltip content={<MidnightTooltip />} />
+              <Tooltip content={<ChartTooltip />} />
               <Area
                 type="monotone"
                 dataKey="created"
@@ -231,7 +231,7 @@ export function ReportsCharts({ data }: { data: TenantAnalytics }) {
                 type="monotone"
                 dataKey="resolved"
                 name="Resolved"
-                stroke="#10b981"
+                stroke="#0EA5E9"
                 strokeWidth={2}
                 fill="url(#gradResolved)"
                 dot={false}
@@ -268,7 +268,7 @@ export function ReportsCharts({ data }: { data: TenantAnalytics }) {
                       />
                     ))}
                   </Pie>
-                  <Tooltip content={<MidnightTooltip />} />
+                  <Tooltip content={<ChartTooltip />} />
                   <Legend
                     iconType="circle"
                     iconSize={8}
@@ -301,7 +301,7 @@ export function ReportsCharts({ data }: { data: TenantAnalytics }) {
                   axisLine={false}
                   tickLine={false}
                 />
-                <Tooltip content={<MidnightTooltip />} />
+                <Tooltip content={<ChartTooltip />} />
                 <Bar dataKey="value" name="Tickets" radius={[6, 6, 0, 0]}>
                   {aiVsManual.map((entry) => (
                     <Cell key={entry.name} fill={entry.fill} />

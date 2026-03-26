@@ -36,42 +36,42 @@ export default async function DashboardLayout({
   return (
     <div
       className="min-h-screen"
-      style={{ backgroundColor: "#09090f", color: "#f1f5f9" }}
+      style={{ backgroundColor: "#F8FAFC", color: "#1E293B" }}
     >
-      <nav style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+      <nav style={{ borderBottom: "1px solid #E2E8F0" }}>
         <div className="px-6 h-14 flex items-center justify-between">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center gap-2">
-            <SparklesIcon className="h-4 w-4" style={{ color: "#818cf8" }} />
-            <span className="font-semibold text-base tracking-tight text-white">
+            <SparklesIcon className="h-4 w-4" style={{ color: "#6366F1" }} />
+            <span className="font-semibold text-base tracking-tight" style={{ color: "#1E293B" }}>
               Heiyo Connect
             </span>
           </Link>
 
           <div className="flex items-center gap-6">
             {/* Nav links */}
-            <div className="flex items-center gap-5 text-sm" style={{ color: "#94a3b8" }}>
+            <div className="flex items-center gap-5 text-sm" style={{ color: "#64748B" }}>
               <Link
                 href="/dashboard"
-                className="transition-colors hover:text-white"
+                className="transition-colors hover:text-slate-900"
               >
                 Dashboard
               </Link>
               <Link
                 href="/dashboard/tickets"
-                className="transition-colors hover:text-white"
+                className="transition-colors hover:text-slate-900"
               >
                 Tickets
               </Link>
               <Link
                 href="/dashboard/reports"
-                className="transition-colors hover:text-white"
+                className="transition-colors hover:text-slate-900"
               >
                 Reports
               </Link>
               <Link
                 href="/dashboard/settings"
-                className="transition-colors hover:text-white"
+                className="transition-colors hover:text-slate-900"
               >
                 Settings
               </Link>
