@@ -1,17 +1,23 @@
+import type { Metadata } from "next";
 import { requireUser } from "@/lib/tenant";
+
+export const metadata: Metadata = { title: "Settings" };
 import { redirect } from "next/navigation";
 import { getAiUsage } from "@/actions/settings";
+import { getTeamMembers } from "@/actions/team";
 import { Progress } from "@/components/ui/progress";
 import { AiProviderForm } from "@/components/settings/ai-provider-form";
+import { TeamMembers } from "@/components/settings/team-members";
 
 export default async function SettingsPage() {
+  let user;
   try {
-    await requireUser();
+    user = await requireUser();
   } catch {
     redirect("/onboarding");
   }
 
-  const usage = await getAiUsage();
+  const [usage, members] = await Promise.all([getAiUsage(), getTeamMembers()]);
   if (!usage) redirect("/onboarding");
 
   const { aiProvider, dailyAiUsage, dailyAiLimit } = usage;
@@ -64,6 +70,25 @@ export default async function SettingsPage() {
         </div>
 
         <AiProviderForm currentProvider={aiProvider} />
+      </section>
+
+      {/* Team */}
+      <section className="rounded-lg border bg-card p-6 space-y-4">
+        <div>
+          <h2 className="font-medium">Team</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {members.length} member{members.length !== 1 ? "s" : ""} in this workspace.
+            {(user.role === "OWNER" || user.role === "ADMIN") && (
+              <span> Role changes take effect immediately.</span>
+            )}
+          </p>
+        </div>
+
+        <TeamMembers
+          members={members}
+          currentUserId={user.id}
+          currentUserRole={user.role}
+        />
       </section>
     </main>
   );
