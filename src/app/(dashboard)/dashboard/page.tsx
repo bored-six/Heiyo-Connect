@@ -1,4 +1,4 @@
-import { getTickets } from "@/actions/tickets";
+import { getTickets, getSparklineData } from "@/actions/tickets";
 
 export const dynamic = "force-dynamic";
 import { requireUser } from "@/lib/tenant";
@@ -7,6 +7,7 @@ import { TicketTable } from "@/components/dashboard/ticket-table";
 import { TicketFilters } from "@/components/dashboard/ticket-filters";
 import { CommandPalette } from "@/components/dashboard/command-palette";
 import { CreateTicketButton } from "@/components/dashboard/create-ticket-button";
+import { StatCard } from "@/components/dashboard/stat-card";
 import { getAiUsage } from "@/actions/settings";
 import { AiProvider, TicketStatus, Priority } from "@prisma/client";
 
@@ -46,9 +47,10 @@ export default async function DashboardPage({
     ? (params.priority as Priority)
     : undefined;
 
-  const [tickets, aiUsage] = await Promise.all([
+  const [tickets, aiUsage, sparkline] = await Promise.all([
     getTickets({ sort, dir, status, priority }),
     getAiUsage(),
+    getSparklineData(),
   ]);
 
   const stats = {
@@ -85,17 +87,34 @@ export default async function DashboardPage({
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          { label: "Open", value: stats.open, color: "text-emerald-600" },
-          { label: "In Progress", value: stats.inProgress, color: "text-blue-600" },
-          { label: "Critical", value: stats.critical, color: "text-red-600" },
-          { label: "Resolved", value: stats.resolved, color: "text-slate-500" },
-        ].map((stat) => (
-          <div key={stat.label} className="rounded-lg border bg-card p-4 shadow-sm">
-            <p className="text-sm text-muted-foreground">{stat.label}</p>
-            <p className={`text-3xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
-          </div>
-        ))}
+        <StatCard
+          label="Open"
+          value={stats.open}
+          colorClass="text-emerald-600"
+          sparkline={sparkline.open}
+          sparklineColor="#10b981"
+        />
+        <StatCard
+          label="In Progress"
+          value={stats.inProgress}
+          colorClass="text-blue-600"
+          sparkline={sparkline.inProgress}
+          sparklineColor="#3b82f6"
+        />
+        <StatCard
+          label="Critical"
+          value={stats.critical}
+          colorClass="text-red-600"
+          sparkline={sparkline.critical}
+          sparklineColor="#ef4444"
+        />
+        <StatCard
+          label="Resolved"
+          value={stats.resolved}
+          colorClass="text-slate-500"
+          sparkline={sparkline.resolved}
+          sparklineColor="#64748b"
+        />
       </div>
 
       {/* Ticket Table — client component with useOptimistic quick actions + Pusher */}

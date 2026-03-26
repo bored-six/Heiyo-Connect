@@ -265,6 +265,57 @@ export async function updateTicketStatus(
 }
 
 /**
+ * Returns 7-day daily ticket counts for sparkline charts on the dashboard.
+ * Each array index = days ago (index 0 = 6 days ago, index 6 = today).
+ */
+export async function getSparklineData() {
+  const user = await requireUser();
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+  const [recentTickets, resolvedTickets] = await Promise.all([
+    prisma.ticket.findMany({
+      where: { tenantId: user.tenantId, createdAt: { gte: sevenDaysAgo } },
+      select: { status: true, priority: true, createdAt: true },
+    }),
+    prisma.ticket.findMany({
+      where: { tenantId: user.tenantId, resolvedAt: { gte: sevenDaysAgo } },
+      select: { resolvedAt: true },
+    }),
+  ]);
+
+  const buckets = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return d.toDateString();
+  });
+
+  return {
+    open: buckets.map(
+      (day) =>
+        recentTickets.filter(
+          (t) => t.status === TicketStatus.OPEN && t.createdAt.toDateString() === day
+        ).length
+    ),
+    inProgress: buckets.map(
+      (day) =>
+        recentTickets.filter(
+          (t) => t.status === TicketStatus.IN_PROGRESS && t.createdAt.toDateString() === day
+        ).length
+    ),
+    critical: buckets.map(
+      (day) =>
+        recentTickets.filter(
+          (t) => t.priority === Priority.CRITICAL && t.createdAt.toDateString() === day
+        ).length
+    ),
+    resolved: buckets.map(
+      (day) =>
+        resolvedTickets.filter((t) => t.resolvedAt?.toDateString() === day).length
+    ),
+  };
+}
+
+/**
  * Assigns a ticket to an agent, scoped to tenant.
  */
 export async function assignTicket(

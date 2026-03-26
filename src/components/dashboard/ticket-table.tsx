@@ -184,8 +184,8 @@ export function TicketTable({
                 const isAssignedToMe = ticket.assignedAgent?.id === currentUserId || ticket.optimisticAssigned
 
                 return (
-                  <tr key={ticket.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3 text-muted-foreground font-mono text-xs">
+                  <tr key={ticket.id} className="hover:bg-muted/40 transition-colors group">
+                    <td className="px-4 py-3 text-muted-foreground font-mono text-xs border-l-2 border-l-transparent group-hover:border-l-blue-400 transition-colors duration-150">
                       {ticket.ticketNumber != null ? `#${String(ticket.ticketNumber).padStart(3, "0")}` : "—"}
                     </td>
                     <td className="px-4 py-3">
@@ -208,11 +208,22 @@ export function TicketTable({
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${PRIORITY_COLORS[ticket.priority]}`}
-                      >
-                        {ticket.priority}
-                      </span>
+                      {ticket.priority === "CRITICAL" ? (
+                        <span className="relative inline-flex items-center">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-20" />
+                          <span
+                            className={`relative inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${PRIORITY_COLORS[ticket.priority]}`}
+                          >
+                            {ticket.priority}
+                          </span>
+                        </span>
+                      ) : (
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${PRIORITY_COLORS[ticket.priority]}`}
+                        >
+                          {ticket.priority}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
                       {ticket._count.messages}

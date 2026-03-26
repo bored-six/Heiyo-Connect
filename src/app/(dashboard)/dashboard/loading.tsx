@@ -18,6 +18,7 @@ export default function DashboardLoading() {
           <div key={i} className="rounded-lg border bg-card p-4 shadow-sm space-y-2">
             <Skeleton className="h-4 w-20" />
             <Skeleton className="h-9 w-12" />
+            <Skeleton className="h-5 w-full mt-1" />
           </div>
         ))}
       </div>
