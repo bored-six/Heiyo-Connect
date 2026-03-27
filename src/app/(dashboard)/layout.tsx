@@ -32,6 +32,11 @@ export default async function DashboardLayout({
 
   const usage = await getNavUsage(userId);
 
+  // Authenticated Clerk user with no DB record — send to onboarding
+  if (!usage) {
+    redirect("/onboarding");
+  }
+
   return (
     <div
       className="min-h-screen"

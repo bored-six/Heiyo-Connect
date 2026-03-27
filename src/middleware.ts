@@ -17,6 +17,11 @@ export default clerkMiddleware(async (auth, req) => {
 
   // Redirect authenticated users away from landing/auth pages to the dashboard
   if (userId && (req.nextUrl.pathname === "/" || req.nextUrl.pathname.startsWith("/sign-in") || req.nextUrl.pathname.startsWith("/sign-up"))) {
+    // Preserve ?join= so invited users with existing Clerk accounts land on onboarding
+    const join = req.nextUrl.searchParams.get("join")
+    if (join && (req.nextUrl.pathname.startsWith("/sign-in") || req.nextUrl.pathname.startsWith("/sign-up"))) {
+      return NextResponse.redirect(new URL(`/onboarding?join=${encodeURIComponent(join)}`, req.url))
+    }
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
