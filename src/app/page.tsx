@@ -102,7 +102,7 @@ export default async function Home() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
           <a
-            href="/api/demo"
+            href="/demo"
             className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold transition-all"
             style={{
               background: "linear-gradient(135deg, #6366F1, #4F46E5)",
@@ -489,7 +489,7 @@ export default async function Home() {
             </p>
           </div>
           <a
-            href="/api/demo"
+            href="/demo"
             className="shrink-0 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-all whitespace-nowrap"
             style={{
               background: "linear-gradient(135deg, #6366F1, #4F46E5)",
