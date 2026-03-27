@@ -17,14 +17,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Resolve tenantId for the gateway
-    const user = await prisma.user.findUnique({
-      where: { clerkId: userId },
+    // Resolve tenantId via active membership
+    const membership = await prisma.tenantMembership.findFirst({
+      where: { user: { clerkId: userId } },
       select: { tenantId: true },
+      orderBy: { createdAt: "asc" },
     });
-    if (!user) {
+    if (!membership) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+    const tenantId = membership.tenantId;
 
     const body = await req.json();
     const validated = AnalyzeRequestSchema.parse(body);
@@ -33,7 +35,7 @@ export async function POST(req: NextRequest) {
     let customerHistory;
     if (validated.ticketId) {
       const ticket = await prisma.ticket.findFirst({
-        where: { id: validated.ticketId, tenantId: user.tenantId },
+        where: { id: validated.ticketId, tenantId },
         include: {
           customer: {
             include: { _count: { select: { tickets: true } } },
@@ -59,7 +61,7 @@ export async function POST(req: NextRequest) {
     const analysis = await analyzeTicketWithProvider(
       validated.subject,
       validated.description,
-      user.tenantId,
+      tenantId,
       customerHistory
     );
 
