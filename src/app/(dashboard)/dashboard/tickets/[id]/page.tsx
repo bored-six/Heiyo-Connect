@@ -1,9 +1,23 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getTicketById } from "@/actions/tickets"
+import { getTeamMembers } from "@/actions/team"
 import { CopyButton } from "@/components/tickets/copy-button"
 import { ReplySection } from "@/components/tickets/reply-section"
+import { AssignAgentDropdown } from "@/components/tickets/assign-agent-dropdown"
 import { ArrowLeft, Bot, User, Clock } from "lucide-react"
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const ticket = await getTicketById(id)
+  if (!ticket) return { title: "Ticket" }
+  return { title: `#${ticket.ticketNumber} ${ticket.subject}` }
+}
 
 const PRIORITY_COLORS: Record<string, string> = {
   LOW: "bg-slate-500/15 text-slate-400",
@@ -26,7 +40,7 @@ export default async function TicketDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const ticket = await getTicketById(id)
+  const [ticket, agents] = await Promise.all([getTicketById(id), getTeamMembers()])
 
   if (!ticket) notFound()
 
@@ -55,7 +69,7 @@ export default async function TicketDetailPage({
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
           <span className="flex items-center gap-1">
             <User className="h-3.5 w-3.5" />
             {ticket.customer.name} &lt;{ticket.customer.email}&gt;
@@ -64,6 +78,11 @@ export default async function TicketDetailPage({
             <Clock className="h-3.5 w-3.5" />
             {new Date(ticket.createdAt).toLocaleString()}
           </span>
+          <AssignAgentDropdown
+            ticketId={ticket.id}
+            agents={agents}
+            currentAgentId={ticket.assignedAgentId}
+          />
         </div>
 
         <p className="text-sm text-foreground/80 whitespace-pre-wrap pt-1">{ticket.description}</p>

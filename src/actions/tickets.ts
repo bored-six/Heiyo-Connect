@@ -373,8 +373,9 @@ export async function assignTicket(
     });
 
     revalidatePath(`/dashboard/tickets/${validated.ticketId}`);
+    revalidatePath("/dashboard");
     return { success: true, data: undefined };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to assign ticket" };
   }
 }
