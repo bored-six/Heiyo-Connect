@@ -8,6 +8,7 @@ import { updateTicketStatus, assignTicket } from "@/actions/tickets"
 import { TicketEmptyState } from "@/components/tickets/empty-state"
 import { useTicketSocket } from "@/hooks/useTicketSocket"
 import { cn } from "@/lib/utils"
+import { ChevronDown } from "lucide-react"
 
 const PRIORITY_COLORS: Record<Priority, string> = {
   LOW: "bg-slate-500/15 text-slate-400",
@@ -22,6 +23,14 @@ const STATUS_COLORS: Record<TicketStatus, string> = {
   WAITING_ON_CUSTOMER: "bg-amber-500/15 text-amber-400",
   RESOLVED: "bg-slate-500/15 text-slate-400",
   CLOSED: "bg-slate-500/10 text-slate-500",
+}
+
+const STATUS_LABELS: Record<TicketStatus, string> = {
+  OPEN: "Open",
+  IN_PROGRESS: "In Progress",
+  WAITING_ON_CUSTOMER: "Waiting on Customer",
+  RESOLVED: "Resolved",
+  CLOSED: "Closed",
 }
 
 // Inline styles for status pill — enables smooth CSS color transitions between states
@@ -53,12 +62,14 @@ type OptimisticTicket = Ticket & { optimisticStatus?: TicketStatus; optimisticAs
 type OptimisticAction =
   | { type: "resolve"; ticketId: string }
   | { type: "assign"; ticketId: string }
+  | { type: "setStatus"; ticketId: string; status: TicketStatus }
 
 function applyOptimistic(tickets: OptimisticTicket[], action: OptimisticAction): OptimisticTicket[] {
   return tickets.map((t) => {
     if (t.id !== action.ticketId) return t
     if (action.type === "resolve") return { ...t, status: TicketStatus.RESOLVED, optimisticStatus: TicketStatus.RESOLVED }
     if (action.type === "assign") return { ...t, optimisticAssigned: true }
+    if (action.type === "setStatus") return { ...t, status: action.status, optimisticStatus: action.status }
     return t
   })
 }
@@ -132,6 +143,13 @@ export function TicketTable({
     tenantId,
     onTicketCreated: () => router.refresh(),
   })
+
+  async function handleStatusChange(ticketId: string, status: TicketStatus) {
+    React.startTransition(() => {
+      addOptimistic({ type: "setStatus", ticketId, status })
+    })
+    await updateTicketStatus({ ticketId, status })
+  }
 
   async function handleResolve(ticketId: string) {
     React.startTransition(() => {
@@ -210,15 +228,25 @@ export function TicketTable({
                       <div className="text-xs">{ticket.customer.email}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        style={{
-                          ...STATUS_STYLE[ticket.status],
-                          transition: "background-color 350ms ease, color 350ms ease",
-                        }}
-                        className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                      >
-                        {ticket.status.replace(/_/g, " ")}
-                      </span>
+                      <div className="relative inline-flex items-center">
+                        <select
+                          value={ticket.optimisticStatus ?? ticket.status}
+                          onChange={(e) => handleStatusChange(ticket.id, e.target.value as TicketStatus)}
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            ...STATUS_STYLE[ticket.optimisticStatus ?? ticket.status],
+                            transition: "background-color 350ms ease, color 350ms ease",
+                          }}
+                          className="appearance-none rounded-full pl-2.5 pr-6 py-0.5 text-xs font-medium border-0 cursor-pointer outline-none"
+                        >
+                          {Object.values(TicketStatus).map((s) => (
+                            <option key={s} value={s} className="bg-background text-foreground">
+                              {STATUS_LABELS[s]}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-1.5 h-3 w-3 pointer-events-none opacity-60" style={{ color: STATUS_STYLE[ticket.optimisticStatus ?? ticket.status].color }} />
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       <span

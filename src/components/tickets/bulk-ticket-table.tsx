@@ -7,12 +7,21 @@ import { TicketStatus, Priority } from "@prisma/client"
 import { bulkUpdateTickets, updateTicketStatus, assignTicket } from "@/actions/tickets"
 import { TicketEmptyState } from "@/components/tickets/empty-state"
 import { cn } from "@/lib/utils"
+import { ChevronDown } from "lucide-react"
 
 const PRIORITY_COLORS: Record<Priority, string> = {
   LOW: "bg-slate-500/15 text-slate-400",
   MEDIUM: "bg-blue-500/15 text-blue-400",
   HIGH: "bg-orange-500/15 text-orange-400",
   CRITICAL: "bg-red-500/15 text-red-400",
+}
+
+const STATUS_LABELS: Record<TicketStatus, string> = {
+  OPEN: "Open",
+  IN_PROGRESS: "In Progress",
+  WAITING_ON_CUSTOMER: "Waiting on Customer",
+  RESOLVED: "Resolved",
+  CLOSED: "Closed",
 }
 
 const STATUS_STYLE: Record<TicketStatus, { backgroundColor: string; color: string }> = {
@@ -98,6 +107,9 @@ export function BulkTicketTable({
   const router = useRouter()
   const [selected, setSelected] = React.useState<Set<string>>(new Set())
   const [pending, setPending] = React.useState<"resolve" | "close" | "assign_me" | null>(null)
+  const [pendingStatusId, setPendingStatusId] = React.useState<string | null>(null)
+  const [optimisticStatuses, setOptimisticStatuses] = React.useState<Record<string, TicketStatus>>({})
+
 
   const allIds = tickets.map((t) => t.id)
   const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id))
@@ -126,6 +138,14 @@ export function BulkTicketTable({
     await bulkUpdateTickets({ ticketIds: Array.from(selected), action })
     setSelected(new Set())
     setPending(null)
+    router.refresh()
+  }
+
+  async function handleStatusChange(ticketId: string, status: TicketStatus) {
+    setOptimisticStatuses((prev) => ({ ...prev, [ticketId]: status }))
+    setPendingStatusId(ticketId)
+    await updateTicketStatus({ ticketId, status })
+    setPendingStatusId(null)
     router.refresh()
   }
 
@@ -246,15 +266,26 @@ export function BulkTicketTable({
                       <div className="text-xs">{ticket.customer.email}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        style={{
-                          ...STATUS_STYLE[ticket.status],
-                          transition: "background-color 350ms ease, color 350ms ease",
-                        }}
-                        className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                      >
-                        {ticket.status.replace(/_/g, " ")}
-                      </span>
+                      <div className="relative inline-flex items-center">
+                        <select
+                          value={optimisticStatuses[ticket.id] ?? ticket.status}
+                          onChange={(e) => handleStatusChange(ticket.id, e.target.value as TicketStatus)}
+                          onClick={(e) => e.stopPropagation()}
+                          disabled={pendingStatusId === ticket.id}
+                          style={{
+                            ...STATUS_STYLE[optimisticStatuses[ticket.id] ?? ticket.status],
+                            transition: "background-color 350ms ease, color 350ms ease",
+                          }}
+                          className="appearance-none rounded-full pl-2.5 pr-6 py-0.5 text-xs font-medium border-0 cursor-pointer outline-none disabled:opacity-60"
+                        >
+                          {Object.values(TicketStatus).map((s) => (
+                            <option key={s} value={s} className="bg-background text-foreground">
+                              {STATUS_LABELS[s]}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-1.5 h-3 w-3 pointer-events-none opacity-60" style={{ color: STATUS_STYLE[optimisticStatuses[ticket.id] ?? ticket.status].color }} />
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${PRIORITY_COLORS[ticket.priority]}`}>

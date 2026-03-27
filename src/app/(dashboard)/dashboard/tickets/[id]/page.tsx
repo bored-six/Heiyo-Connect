@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/tenant"
 import { CopyButton } from "@/components/tickets/copy-button"
 import { ReplySection } from "@/components/tickets/reply-section"
 import { AssignAgentDropdown } from "@/components/tickets/assign-agent-dropdown"
+import { StatusDropdown } from "@/components/tickets/status-dropdown"
 import { ArrowLeft, Bot, User, Clock, Tag, Hash, Zap } from "lucide-react"
 
 export async function generateMetadata({
@@ -167,12 +168,7 @@ export default async function TicketDetailPage({
             />
 
             {/* Status */}
-            <div className="space-y-1.5">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Status</p>
-              <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_COLORS[ticket.status]}`}>
-                {ticket.status.replace(/_/g, " ")}
-              </span>
-            </div>
+            <StatusDropdown ticketId={ticket.id} currentStatus={ticket.status} />
 
             {/* Priority */}
             <div className="space-y-1.5">
