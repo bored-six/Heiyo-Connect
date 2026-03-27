@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { NavLogoutButton } from "@/components/dashboard/nav-logout-button";
 import { NavUsageBar } from "@/components/dashboard/nav-usage-bar";
 import { WorkspaceSwitcher } from "@/components/dashboard/workspace-switcher";
+import { NavNotificationBell } from "@/components/dashboard/nav-notification-bell";
 import Link from "next/link";
 
 const WORKSPACE_COOKIE = "hw_workspace";
@@ -33,7 +34,19 @@ async function getNavData(clerkId: string) {
   const active =
     user.memberships.find((m) => m.tenantId === activeId) ?? user.memberships[0];
 
-  return { user, active, all: user.memberships };
+  // Fetch pending join requests for OWNER/ADMIN
+  const isManager = active.role === "OWNER" || active.role === "ADMIN";
+  const joinRequests = isManager
+    ? await prisma.joinRequest.findMany({
+        where: { tenantId: active.tenantId, status: "PENDING" },
+        include: {
+          user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+        },
+        orderBy: { createdAt: "asc" },
+      })
+    : [];
+
+  return { user, active, all: user.memberships, joinRequests };
 }
 
 export default async function DashboardLayout({
@@ -49,7 +62,7 @@ export default async function DashboardLayout({
   // No workspace membership — send to onboarding
   if (!data) redirect("/onboarding");
 
-  const { active, all } = data;
+  const { active, all, joinRequests } = data;
 
   const workspaces = all.map((m) => ({
     tenantId: m.tenantId,
@@ -109,6 +122,13 @@ export default async function DashboardLayout({
                 Settings
               </Link>
             </div>
+
+            {(active.role === "OWNER" || active.role === "ADMIN") && (
+              <NavNotificationBell
+                initialRequests={joinRequests}
+                currentUserRole={active.role}
+              />
+            )}
 
             <NavLogoutButton />
 
