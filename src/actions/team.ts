@@ -17,18 +17,28 @@ const UpdateRoleSchema = z.object({
 
 export async function getTeamMembers() {
   const user = await requireUser();
-  return prisma.user.findMany({
+
+  const memberships = await prisma.tenantMembership.findMany({
     where: { tenantId: user.tenantId },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      avatarUrl: true,
-      createdAt: true,
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatarUrl: true,
+          createdAt: true,
+        },
+      },
     },
-    orderBy: [{ createdAt: "asc" }],
+    orderBy: { createdAt: "asc" },
   });
+
+  return memberships.map((m) => ({
+    ...m.user,
+    role: m.role,
+    membershipId: m.id,
+  }));
 }
 
 export async function updateMemberRole(data: unknown): Promise<ActionResult> {
@@ -45,24 +55,25 @@ export async function updateMemberRole(data: unknown): Promise<ActionResult> {
       return { success: false, error: "Cannot change your own role" };
     }
 
-    const target = await prisma.user.findFirst({
-      where: { id: userId, tenantId: currentUser.tenantId },
+    const target = await prisma.tenantMembership.findUnique({
+      where: { userId_tenantId: { userId, tenantId: currentUser.tenantId } },
     });
     if (!target) return { success: false, error: "User not found" };
 
-    // Only OWNER can touch OWNER-level assignments
     if (role === "OWNER" || target.role === "OWNER") {
       if (currentUser.role !== "OWNER") {
         return { success: false, error: "Only owners can modify owner-level roles" };
       }
     }
 
-    // ADMIN can only assign AGENT or VIEWER
     if (currentUser.role === "ADMIN" && (role === "OWNER" || role === "ADMIN")) {
       return { success: false, error: "Admins can only assign Agent or Viewer roles" };
     }
 
-    await prisma.user.update({ where: { id: userId }, data: { role } });
+    await prisma.tenantMembership.update({
+      where: { userId_tenantId: { userId, tenantId: currentUser.tenantId } },
+      data: { role },
+    });
 
     revalidatePath("/dashboard/settings");
     return { success: true, data: undefined };
@@ -86,8 +97,8 @@ export async function removeMember(userId: string): Promise<ActionResult> {
       return { success: false, error: "Cannot remove yourself" };
     }
 
-    const target = await prisma.user.findFirst({
-      where: { id: userId, tenantId: currentUser.tenantId },
+    const target = await prisma.tenantMembership.findUnique({
+      where: { userId_tenantId: { userId, tenantId: currentUser.tenantId } },
     });
     if (!target) return { success: false, error: "User not found" };
 
@@ -95,7 +106,10 @@ export async function removeMember(userId: string): Promise<ActionResult> {
       return { success: false, error: "Only owners can remove other owners" };
     }
 
-    await prisma.user.delete({ where: { id: userId } });
+    // Remove membership only — the User record stays (they may have other workspaces)
+    await prisma.tenantMembership.delete({
+      where: { userId_tenantId: { userId, tenantId: currentUser.tenantId } },
+    });
 
     revalidatePath("/dashboard/settings");
     return { success: true, data: undefined };

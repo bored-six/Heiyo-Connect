@@ -3,20 +3,37 @@ export const dynamic = "force-dynamic";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { cookies } from "next/headers";
 import { NavLogoutButton } from "@/components/dashboard/nav-logout-button";
 import { NavUsageBar } from "@/components/dashboard/nav-usage-bar";
+import { WorkspaceSwitcher } from "@/components/dashboard/workspace-switcher";
 import Link from "next/link";
 
-async function getNavUsage(userId: string) {
+const WORKSPACE_COOKIE = "hw_workspace";
+
+async function getNavData(clerkId: string) {
   const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
-    select: {
-      tenant: {
-        select: { id: true, dailyAiUsage: true, dailyAiLimit: true },
+    where: { clerkId },
+    include: {
+      memberships: {
+        include: {
+          tenant: {
+            select: { id: true, name: true, dailyAiUsage: true, dailyAiLimit: true },
+          },
+        },
+        orderBy: { createdAt: "asc" },
       },
     },
   });
-  return user?.tenant ?? null;
+
+  if (!user || user.memberships.length === 0) return null;
+
+  const cookieStore = await cookies();
+  const activeId = cookieStore.get(WORKSPACE_COOKIE)?.value;
+  const active =
+    user.memberships.find((m) => m.tenantId === activeId) ?? user.memberships[0];
+
+  return { user, active, all: user.memberships };
 }
 
 export default async function DashboardLayout({
@@ -25,17 +42,20 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
 
-  if (!userId) {
-    redirect("/sign-in");
-  }
+  const data = await getNavData(userId);
 
-  const usage = await getNavUsage(userId);
+  // No workspace membership — send to onboarding
+  if (!data) redirect("/onboarding");
 
-  // Authenticated Clerk user with no DB record — send to onboarding
-  if (!usage) {
-    redirect("/onboarding");
-  }
+  const { active, all } = data;
+
+  const workspaces = all.map((m) => ({
+    tenantId: m.tenantId,
+    tenantName: m.tenant.name,
+    role: m.role,
+  }));
 
   return (
     <div
@@ -44,63 +64,59 @@ export default async function DashboardLayout({
     >
       <nav style={{ borderBottom: "1px solid #E2E8F0" }}>
         <div className="px-6 h-14 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/dashboard" className="flex items-center gap-2.5">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <rect width="24" height="24" rx="6" fill="#6366F1"/>
-              <rect x="5.5" y="6" width="3" height="12" rx="1.5" fill="white"/>
-              <rect x="15.5" y="6" width="3" height="12" rx="1.5" fill="white"/>
-              <rect x="5.5" y="10" width="13" height="3.5" rx="1.5" fill="white"/>
-            </svg>
-            <span className="font-semibold text-base tracking-tight" style={{ color: "#1E293B" }}>
-              Heiyo
-            </span>
-          </Link>
+          {/* Logo + workspace switcher */}
+          <div className="flex items-center gap-4">
+            <Link href="/dashboard" className="flex items-center gap-2.5">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect width="24" height="24" rx="6" fill="#6366F1"/>
+                <rect x="5.5" y="6" width="3" height="12" rx="1.5" fill="white"/>
+                <rect x="15.5" y="6" width="3" height="12" rx="1.5" fill="white"/>
+                <rect x="5.5" y="10" width="13" height="3.5" rx="1.5" fill="white"/>
+              </svg>
+              <span className="font-semibold text-base tracking-tight" style={{ color: "#1E293B" }}>
+                Heiyo
+              </span>
+            </Link>
+
+            <span className="text-gray-300 text-sm">/</span>
+
+            <WorkspaceSwitcher
+              current={{
+                tenantId: active.tenantId,
+                tenantName: active.tenant.name,
+                role: active.role,
+              }}
+              all={workspaces}
+            />
+          </div>
 
           <div className="flex items-center gap-6">
             {/* Nav links */}
             <div className="flex items-center gap-5 text-sm" style={{ color: "#64748B" }}>
-              <Link
-                href="/dashboard"
-                className="transition-colors hover:text-slate-900"
-              >
+              <Link href="/dashboard" className="transition-colors hover:text-slate-900">
                 Dashboard
               </Link>
-              <Link
-                href="/dashboard/tickets"
-                className="transition-colors hover:text-slate-900"
-              >
+              <Link href="/dashboard/tickets" className="transition-colors hover:text-slate-900">
                 Tickets
               </Link>
-              <Link
-                href="/dashboard/customers"
-                className="transition-colors hover:text-slate-900"
-              >
+              <Link href="/dashboard/customers" className="transition-colors hover:text-slate-900">
                 Customers
               </Link>
-              <Link
-                href="/dashboard/reports"
-                className="transition-colors hover:text-slate-900"
-              >
+              <Link href="/dashboard/reports" className="transition-colors hover:text-slate-900">
                 Reports
               </Link>
-              <Link
-                href="/dashboard/settings"
-                className="transition-colors hover:text-slate-900"
-              >
+              <Link href="/dashboard/settings" className="transition-colors hover:text-slate-900">
                 Settings
               </Link>
             </div>
 
             <NavLogoutButton />
 
-            {usage && (
-              <NavUsageBar
-                initialUsage={usage.dailyAiUsage}
-                dailyAiLimit={usage.dailyAiLimit}
-                tenantId={usage.id}
-              />
-            )}
+            <NavUsageBar
+              initialUsage={active.tenant.dailyAiUsage}
+              dailyAiLimit={active.tenant.dailyAiLimit}
+              tenantId={active.tenant.id}
+            />
           </div>
         </div>
       </nav>
