@@ -157,6 +157,7 @@ export default async function SettingsPage({
             user={{
               name: user.name ?? null,
               email: user.email,
+              avatarUrl: user.avatarUrl ?? null,
               role: user.role,
               tenantName: user.tenant.name,
             }}

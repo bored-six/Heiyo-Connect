@@ -7,6 +7,7 @@ import { updateProfile } from "@/actions/profile"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { AVATAR_PRESETS, AvatarDisplay, PresetAvatar, isPresetAvatar, type AvatarPresetId } from "@/lib/avatars"
 
 const ROLE_LABELS: Record<Role, string> = {
   OWNER: "Owner",
@@ -29,16 +30,6 @@ const ROLE_COLORS: Record<Role, string> = {
   VIEWER: "text-gray-600 bg-gray-50 border-gray-200",
 }
 
-function getInitials(name: string | null, email: string) {
-  if (name) {
-    const parts = name.trim().split(" ")
-    return parts.length >= 2
-      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-      : name.slice(0, 2).toUpperCase()
-  }
-  return email.slice(0, 2).toUpperCase()
-}
-
 export function ProfileForm({
   user,
 }: {
@@ -51,22 +42,14 @@ export function ProfileForm({
   }
 }) {
   const [name, setName] = useState(user.name ?? "")
-  const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl ?? "")
-  const [imgError, setImgError] = useState(false)
+  const [selectedAvatar, setSelectedAvatar] = useState<AvatarPresetId | null>(
+    isPresetAvatar(user.avatarUrl) ? user.avatarUrl : null
+  )
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
   const RoleIcon = ROLE_ICONS[user.role]
-
-  // Preview: show image if avatarUrl is set and hasn't errored, else initials
-  const previewName = name.trim() || null
-  const showImage = avatarUrl.trim() !== "" && !imgError
-
-  function handleAvatarUrlChange(val: string) {
-    setAvatarUrl(val)
-    setImgError(false)
-  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -74,7 +57,10 @@ export function ProfileForm({
     setSaved(false)
 
     startTransition(async () => {
-      const result = await updateProfile({ name: name.trim(), avatarUrl: avatarUrl.trim() })
+      const result = await updateProfile({
+        name: name.trim(),
+        avatarUrl: selectedAvatar ?? "",
+      })
       if (result.success) {
         setSaved(true)
         setTimeout(() => setSaved(false), 3000)
@@ -86,27 +72,21 @@ export function ProfileForm({
 
   return (
     <div className="space-y-6 max-w-lg">
-      {/* Avatar preview */}
+      {/* Profile preview card */}
       <div className="rounded-lg border bg-muted/20 p-5 space-y-4">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
           Profile
         </h3>
 
         <div className="flex items-center gap-4">
-          <div className="size-16 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-lg font-bold text-gray-600 shrink-0 select-none">
-            {showImage ? (
-              <img
-                src={avatarUrl}
-                alt="Avatar preview"
-                className="size-full object-cover"
-                onError={() => setImgError(true)}
-              />
-            ) : (
-              getInitials(previewName, user.email)
-            )}
-          </div>
+          <AvatarDisplay
+            avatarUrl={selectedAvatar}
+            name={name.trim() || null}
+            email={user.email}
+            size={64}
+          />
           <div className="min-w-0">
-            <p className="font-semibold text-base truncate">{previewName ?? "—"}</p>
+            <p className="font-semibold text-base truncate">{name.trim() || "—"}</p>
             <p className="text-sm text-muted-foreground truncate">{user.email}</p>
           </div>
         </div>
@@ -129,7 +109,7 @@ export function ProfileForm({
       </div>
 
       {/* Edit form */}
-      <form onSubmit={handleSubmit} className="rounded-lg border bg-muted/20 p-5 space-y-4">
+      <form onSubmit={handleSubmit} className="rounded-lg border bg-muted/20 p-5 space-y-5">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
           Edit Profile
         </h3>
@@ -145,21 +125,44 @@ export function ProfileForm({
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="avatar-url">Avatar URL</Label>
-          <Input
-            id="avatar-url"
-            type="url"
-            value={avatarUrl}
-            onChange={(e) => handleAvatarUrlChange(e.target.value)}
-            placeholder="https://example.com/your-photo.png"
-          />
-          {imgError && (
-            <p className="text-xs text-destructive">Could not load image from that URL.</p>
+        {/* Avatar picker */}
+        <div className="space-y-3">
+          <Label>Avatar</Label>
+          <div className="grid grid-cols-6 gap-3">
+            {AVATAR_PRESETS.map((preset) => {
+              const isSelected = selectedAvatar === preset.id
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  title={preset.label}
+                  onClick={() => setSelectedAvatar(isSelected ? null : preset.id)}
+                  className="relative rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  style={{ width: 48, height: 48 }}
+                >
+                  <div
+                    className="size-full rounded-full overflow-hidden transition-transform hover:scale-110"
+                    style={{
+                      outline: isSelected ? "3px solid #6366f1" : "3px solid transparent",
+                      outlineOffset: "2px",
+                    }}
+                  >
+                    <PresetAvatar id={preset.id} />
+                  </div>
+                  {isSelected && (
+                    <div className="absolute -bottom-1 -right-1 size-4 rounded-full bg-indigo-600 flex items-center justify-center">
+                      <Check className="size-2.5 text-white" strokeWidth={3} />
+                    </div>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+          {selectedAvatar === null && (
+            <p className="text-xs text-muted-foreground">
+              No avatar selected — your initials will be shown.
+            </p>
           )}
-          <p className="text-xs text-muted-foreground">
-            Paste a direct link to an image. Leave blank to use your initials.
-          </p>
         </div>
 
         {error && <p className="text-sm text-destructive">{error}</p>}

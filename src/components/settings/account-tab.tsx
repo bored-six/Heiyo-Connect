@@ -4,6 +4,7 @@ import { useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { Role } from "@prisma/client"
 import { LogOut, Crown, ShieldCheck, User, Eye } from "lucide-react"
+import { AvatarDisplay } from "@/lib/avatars"
 
 const ROLE_LABELS: Record<Role, string> = {
   OWNER: "Owner",
@@ -26,15 +27,6 @@ const ROLE_COLORS: Record<Role, string> = {
   VIEWER: "text-gray-600 bg-gray-50 border-gray-200",
 }
 
-function getInitials(name: string | null, email: string) {
-  if (name) {
-    const parts = name.trim().split(" ")
-    return parts.length >= 2
-      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-      : name.slice(0, 2).toUpperCase()
-  }
-  return email.slice(0, 2).toUpperCase()
-}
 
 export function AccountTab({
   user,
@@ -42,6 +34,7 @@ export function AccountTab({
   user: {
     name: string | null
     email: string
+    avatarUrl: string | null
     role: Role
     tenantName: string
   }
@@ -62,9 +55,7 @@ export function AccountTab({
           Profile
         </h3>
         <div className="flex items-center gap-4">
-          <div className="size-14 rounded-full bg-gray-200 flex items-center justify-center text-lg font-bold text-gray-600 shrink-0 select-none">
-            {getInitials(user.name, user.email)}
-          </div>
+          <AvatarDisplay avatarUrl={user.avatarUrl} name={user.name} email={user.email} size={56} />
           <div className="min-w-0">
             <p className="font-semibold text-base truncate">{user.name ?? "—"}</p>
             <p className="text-sm text-muted-foreground truncate">{user.email}</p>

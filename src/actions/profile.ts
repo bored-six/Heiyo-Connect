@@ -7,7 +7,11 @@ import { revalidatePath } from "next/cache"
 
 const UpdateProfileSchema = z.object({
   name: z.string().max(100),
-  avatarUrl: z.string().url("Must be a valid URL").or(z.literal("")),
+  // preset ID like "preset:ocean", or empty string to clear
+  avatarUrl: z.string().refine(
+    (v) => v === "" || v.startsWith("preset:"),
+    "Invalid avatar selection"
+  ),
 })
 
 type ActionResult<T> = { success: true; data: T } | { success: false; error: string }
@@ -29,7 +33,7 @@ export async function updateProfile(
       where: { id: user.id },
       data: {
         name: name.trim() || null,
-        avatarUrl: avatarUrl.trim() || null,
+        avatarUrl: avatarUrl || null,
       },
       select: { name: true, avatarUrl: true },
     })
