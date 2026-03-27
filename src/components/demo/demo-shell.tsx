@@ -3,7 +3,7 @@
 import { useReducer, useState, useMemo } from "react"
 import { DEMO_TICKETS, DEMO_CUSTOMERS, type DemoTicket, type DemoCustomer } from "@/lib/demo-data"
 import type { TicketStatus, Priority, Channel } from "@prisma/client"
-import { X, Plus, Search } from "lucide-react"
+import { X, Plus, Search, ChevronDown } from "lucide-react"
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -58,6 +58,14 @@ const STATUS_STYLE: Record<TicketStatus, { backgroundColor: string; color: strin
   WAITING_ON_CUSTOMER: { backgroundColor: "rgba(245,158,11,0.15)", color: "#fbbf24" },
   RESOLVED:            { backgroundColor: "rgba(100,116,139,0.15)", color: "#94a3b8" },
   CLOSED:              { backgroundColor: "rgba(100,116,139,0.10)", color: "#64748b" },
+}
+
+const STATUS_LABELS: Record<TicketStatus, string> = {
+  OPEN: "Open",
+  IN_PROGRESS: "In Progress",
+  WAITING_ON_CUSTOMER: "Waiting on Customer",
+  RESOLVED: "Resolved",
+  CLOSED: "Closed",
 }
 
 // ── Stat Card ─────────────────────────────────────────────────────────────────
@@ -247,11 +255,12 @@ function TicketDrawer({ ticket, onClose, onStatusChange }: {
 
 // ── Ticket Table (shared between Dashboard + Tickets view) ────────────────────
 
-function TicketTable({ tickets, onSelect, onAssign, onResolve }: {
+function TicketTable({ tickets, onSelect, onAssign, onResolve, onStatusChange }: {
   tickets: DemoTicket[]
   onSelect: (t: DemoTicket) => void
   onAssign: (id: string) => void
   onResolve: (id: string) => void
+  onStatusChange: (id: string, status: TicketStatus) => void
 }) {
   const [sort, setSort] = useState<SortField>("createdAt")
   const [dir, setDir] = useState<SortDir>("desc")
@@ -364,9 +373,22 @@ function TicketTable({ tickets, onSelect, onAssign, onResolve }: {
                     <div className="text-xs">{ticket.customer.company}</div>
                   </td>
                   <td className="px-4 py-3">
-                    <span style={STATUS_STYLE[ticket.status]} className="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium">
-                      {ticket.status.replace(/_/g, " ")}
-                    </span>
+                    <div className="relative inline-flex items-center">
+                      <select
+                        value={ticket.status}
+                        onChange={(e) => onStatusChange(ticket.id, e.target.value as TicketStatus)}
+                        onClick={(e) => e.stopPropagation()}
+                        style={STATUS_STYLE[ticket.status]}
+                        className="appearance-none rounded-full pl-2.5 pr-6 py-0.5 text-xs font-medium border-0 cursor-pointer outline-none"
+                      >
+                        {(Object.keys(STATUS_LABELS) as TicketStatus[]).map((s) => (
+                          <option key={s} value={s} className="bg-white text-gray-900">
+                            {STATUS_LABELS[s]}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-1.5 h-3 w-3 pointer-events-none opacity-60" style={{ color: STATUS_STYLE[ticket.status].color }} />
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${PRIORITY_COLORS[ticket.priority]}`}>
@@ -633,6 +655,7 @@ export function DemoShell() {
               onSelect={setSelected}
               onAssign={(id) => dispatch({ type: "ASSIGN", id })}
               onResolve={(id) => dispatch({ type: "SET_STATUS", id, status: "RESOLVED" })}
+              onStatusChange={(id, status) => dispatch({ type: "SET_STATUS", id, status })}
             />
           </>
         )}
@@ -650,6 +673,7 @@ export function DemoShell() {
               onSelect={setSelected}
               onAssign={(id) => dispatch({ type: "ASSIGN", id })}
               onResolve={(id) => dispatch({ type: "SET_STATUS", id, status: "RESOLVED" })}
+              onStatusChange={(id, status) => dispatch({ type: "SET_STATUS", id, status })}
             />
           </>
         )}
