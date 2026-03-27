@@ -1,31 +1,12 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { requireUser } from "@/lib/tenant";
 import { getCustomers } from "@/actions/customers";
-import { Users } from "lucide-react";
+import { CustomerGrid } from "@/components/customers/customer-grid";
+import { Users, TicketCheck, ActivitySquare } from "lucide-react";
 
 export const metadata: Metadata = { title: "Customers" };
 export const dynamic = "force-dynamic";
-
-const STATUS_COLORS: Record<string, string> = {
-  OPEN: "bg-emerald-100 text-emerald-700",
-  IN_PROGRESS: "bg-blue-100 text-blue-700",
-  WAITING_ON_CUSTOMER: "bg-amber-100 text-amber-700",
-  RESOLVED: "bg-slate-100 text-slate-600",
-  CLOSED: "bg-slate-100 text-slate-500",
-};
-
-function timeAgo(date: Date): string {
-  const diff = Date.now() - date.getTime();
-  const days = Math.floor(diff / 86400000);
-  if (days === 0) return "Today";
-  if (days === 1) return "Yesterday";
-  if (days < 30) return `${days}d ago`;
-  const months = Math.floor(days / 30);
-  if (months < 12) return `${months}mo ago`;
-  return `${Math.floor(months / 12)}y ago`;
-}
 
 export default async function CustomersPage() {
   try {
@@ -36,77 +17,56 @@ export default async function CustomersPage() {
 
   const customers = await getCustomers();
 
+  const totalTickets = customers.reduce((s, c) => s + c.ticketCount, 0);
+  const activeCount = customers.filter((c) => c.openCount > 0).length;
+  const resolvedOnlyCount = customers.filter(
+    (c) => c.ticketCount > 0 && c.openCount === 0
+  ).length;
+
   return (
     <main className="p-6 max-w-7xl mx-auto space-y-6">
+      {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Customers</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {customers.length} customer{customers.length !== 1 ? "s" : ""} across all tickets
+          Everyone who has ever submitted a ticket in your workspace
         </p>
       </div>
 
-      <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
-        {customers.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
-            <Users className="h-10 w-10 text-muted-foreground/40" />
-            <p className="text-sm text-muted-foreground">
-              No customers yet. Customers are created automatically when tickets are submitted.
-            </p>
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="rounded-lg border bg-card p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            <p className="text-xs text-muted-foreground">Total Customers</p>
           </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/40 text-xs text-muted-foreground uppercase tracking-wide">
-                <th className="px-4 py-3 text-left font-medium">Customer</th>
-                <th className="px-4 py-3 text-left font-medium">Tickets</th>
-                <th className="px-4 py-3 text-left font-medium">Last Ticket</th>
-                <th className="px-4 py-3 text-left font-medium">Status</th>
-                <th className="px-4 py-3 text-left font-medium">Member since</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {customers.map((customer) => (
-                <tr
-                  key={customer.id}
-                  className="hover:bg-muted/30 transition-colors"
-                >
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/dashboard/customers/${customer.id}`}
-                      className="group"
-                    >
-                      <p className="font-medium group-hover:text-primary transition-colors">
-                        {customer.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{customer.email}</p>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="font-medium">{customer.ticketCount}</span>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {customer.lastTicketAt ? timeAgo(customer.lastTicketAt) : "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    {customer.lastTicketStatus ? (
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[customer.lastTicketStatus]}`}
-                      >
-                        {customer.lastTicketStatus.replace(/_/g, " ")}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {new Date(customer.createdAt).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+          <p className="text-2xl font-bold">{customers.length}</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <ActivitySquare className="h-4 w-4 text-emerald-500" />
+            <p className="text-xs text-muted-foreground">Have Open Tickets</p>
+          </div>
+          <p className="text-2xl font-bold text-emerald-600">{activeCount}</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <TicketCheck className="h-4 w-4 text-slate-400" />
+            <p className="text-xs text-muted-foreground">Fully Resolved</p>
+          </div>
+          <p className="text-2xl font-bold">{resolvedOnlyCount}</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <TicketCheck className="h-4 w-4 text-blue-400" />
+            <p className="text-xs text-muted-foreground">Total Tickets</p>
+          </div>
+          <p className="text-2xl font-bold">{totalTickets}</p>
+        </div>
       </div>
+
+      {/* Customer card grid with search */}
+      <CustomerGrid customers={customers} />
     </main>
   );
 }
