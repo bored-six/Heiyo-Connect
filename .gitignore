@@ -56,3 +56,6 @@ next-env.d.ts
 .vscode/settings.json
 *.swp
 *.swo
+
+# Salesforce DX (auto-created by sf CLI, not part of this project)
+.sfdx/
