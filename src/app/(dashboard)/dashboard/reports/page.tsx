@@ -1,4 +1,7 @@
+import type { Metadata } from "next";
 import { getTenantAnalytics } from "@/lib/analytics"
+
+export const metadata: Metadata = { title: "Reports" };
 import { requireUser } from "@/lib/tenant"
 import { redirect } from "next/navigation"
 import { ReportsCharts } from "@/components/dashboard/reports-charts"

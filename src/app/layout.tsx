@@ -16,7 +16,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Heiyo Connect",
+  title: {
+    default: "Heiyo Connect",
+    template: "%s | Heiyo Connect",
+  },
   description: "AI-powered customer support dashboard",
 };
 

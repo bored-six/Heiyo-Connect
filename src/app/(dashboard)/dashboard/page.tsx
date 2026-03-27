@@ -1,5 +1,7 @@
 import { getTickets, getSparklineData, getRecentActivity } from "@/actions/tickets";
+import type { Metadata } from "next";
 
+export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 import { requireUser } from "@/lib/tenant";
 import { redirect } from "next/navigation";
