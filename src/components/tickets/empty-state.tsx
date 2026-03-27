@@ -1,34 +1,11 @@
 "use client"
 
-import { useTransition, useState } from "react"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
-import {
-  DatabaseIcon,
-  PlusIcon,
-  SparklesIcon,
-  ZapIcon,
-  BarChart3Icon,
-} from "lucide-react"
-import { seedDemoData } from "@/actions/seed"
+import { useState } from "react"
+import { PlusIcon } from "lucide-react"
 import { CreateTicketDialog } from "@/components/dashboard/create-ticket-dialog"
 
 export function TicketEmptyState({ filtered = false }: { filtered?: boolean }) {
-  const [isPending, startTransition] = useTransition()
   const [dialogOpen, setDialogOpen] = useState(false)
-  const router = useRouter()
-
-  function handleSeed() {
-    startTransition(async () => {
-      const result = await seedDemoData()
-      if (result.success) {
-        toast.success(`Seeded ${result.data.count} demo tickets — charts are live!`)
-        router.refresh()
-      } else {
-        toast.error(result.error)
-      }
-    })
-  }
 
   return (
     <>
@@ -81,59 +58,18 @@ export function TicketEmptyState({ filtered = false }: { filtered?: boolean }) {
                   Your dashboard is ready
                 </h3>
                 <p className="text-sm text-muted-foreground text-center max-w-md mx-auto mb-8">
-                  Populate it with 15 realistic demo tickets — spread across priorities,
-                  statuses, and 7 days — so your charts and AI triage look production-ready
-                  instantly.
+                  Create your first ticket to get started. Your team can collaborate, triage priorities, and respond to customers all in one place.
                 </p>
 
-                {/* Feature preview pills */}
-                <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-                  {[
-                    { icon: <SparklesIcon className="h-3 w-3" />, label: "AI-triaged priorities" },
-                    { icon: <ZapIcon className="h-3 w-3" />, label: "Pusher real-time toasts" },
-                    { icon: <BarChart3Icon className="h-3 w-3" />, label: "Analytics-ready data" },
-                  ].map((p) => (
-                    <span
-                      key={p.label}
-                      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium bg-muted text-muted-foreground border"
-                    >
-                      {p.icon}
-                      {p.label}
-                    </span>
-                  ))}
-                </div>
-
-                {/* CTAs */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <button
-                    onClick={handleSeed}
-                    disabled={isPending}
-                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-                  >
-                    {isPending ? (
-                      <>
-                        <span className="h-3.5 w-3.5 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
-                        Seeding…
-                      </>
-                    ) : (
-                      <>
-                        <DatabaseIcon className="h-3.5 w-3.5" />
-                        Seed 15 demo tickets
-                      </>
-                    )}
-                  </button>
+                <div className="flex justify-center">
                   <button
                     onClick={() => setDialogOpen(true)}
-                    className="inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all shadow-sm"
                   >
                     <PlusIcon className="h-3.5 w-3.5" />
                     Create first ticket
                   </button>
                 </div>
-
-                <p className="mt-4 text-xs text-muted-foreground text-center">
-                  Demo data spans 7 days · 4 priority levels · AI suggested responses pre-filled
-                </p>
               </div>
             </div>
           )}
