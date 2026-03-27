@@ -379,3 +379,44 @@ export async function assignTicket(
     return { success: false, error: "Failed to assign ticket" };
   }
 }
+
+const BulkUpdateSchema = z.object({
+  ticketIds: z.array(z.string().cuid()).min(1).max(100),
+  action: z.enum(["resolve", "close", "assign_me"]),
+});
+
+/**
+ * Bulk update tickets — resolve, close, or assign to current user.
+ * All tickets must belong to the current tenant.
+ */
+export async function bulkUpdateTickets(
+  data: z.infer<typeof BulkUpdateSchema>
+): Promise<ActionResult<{ count: number }>> {
+  try {
+    const user = await requireUser();
+    const { ticketIds, action } = BulkUpdateSchema.parse(data);
+
+    let updateData: object;
+    if (action === "resolve") {
+      updateData = { status: TicketStatus.RESOLVED, resolvedAt: new Date() };
+    } else if (action === "close") {
+      updateData = { status: TicketStatus.CLOSED };
+    } else {
+      updateData = { assignedAgentId: user.id };
+    }
+
+    const result = await prisma.ticket.updateMany({
+      where: {
+        id: { in: ticketIds },
+        tenantId: user.tenantId, // CRITICAL: tenant scope
+      },
+      data: updateData,
+    });
+
+    revalidatePath("/dashboard/tickets");
+    revalidatePath("/dashboard");
+    return { success: true, data: { count: result.count } };
+  } catch {
+    return { success: false, error: "Bulk update failed" };
+  }
+}

@@ -2,10 +2,11 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { requireUser } from "@/lib/tenant"
 import { getTickets } from "@/actions/tickets"
-import { TicketTable } from "@/components/dashboard/ticket-table"
+import { BulkTicketTable } from "@/components/tickets/bulk-ticket-table"
 import { TicketFilters } from "@/components/dashboard/ticket-filters"
 import { CreateTicketButton } from "@/components/dashboard/create-ticket-button"
 import { CommandPalette } from "@/components/dashboard/command-palette"
+import { TicketSearch } from "@/components/tickets/ticket-search"
 import { TicketStatus, Priority } from "@prisma/client"
 
 export const metadata: Metadata = { title: "Tickets" }
@@ -17,7 +18,7 @@ const VALID_PRIORITIES = Object.values(Priority)
 export default async function TicketsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sort?: string; dir?: string; status?: string; priority?: string }>
+  searchParams: Promise<{ sort?: string; dir?: string; status?: string; priority?: string; q?: string }>
 }) {
   let user
   try {
@@ -33,6 +34,7 @@ export default async function TicketsPage({
     ? (params.sort as SortField)
     : "createdAt"
   const dir = params.dir === "asc" ? "asc" : "desc"
+  const search = params.q?.trim() || undefined
 
   const status = VALID_STATUSES.includes(params.status as TicketStatus)
     ? (params.status as TicketStatus)
@@ -41,7 +43,7 @@ export default async function TicketsPage({
     ? (params.priority as Priority)
     : undefined
 
-  const tickets = await getTickets({ sort, dir, status, priority })
+  const tickets = await getTickets({ sort, dir, status, priority, search })
 
   return (
     <main className="p-6 max-w-7xl mx-auto space-y-6">
@@ -49,7 +51,8 @@ export default async function TicketsPage({
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Tickets</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {tickets.length} ticket{tickets.length !== 1 ? "s" : ""} total
+            {tickets.length} ticket{tickets.length !== 1 ? "s" : ""}
+            {search ? ` matching "${search}"` : ""}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -59,14 +62,16 @@ export default async function TicketsPage({
       </div>
 
       <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b">
-          <h2 className="font-medium">All Tickets</h2>
-          <TicketFilters currentStatus={status} currentPriority={priority} />
+        <div className="flex items-center justify-between gap-3 px-4 py-3 border-b">
+          <h2 className="font-medium shrink-0">All Tickets</h2>
+          <div className="flex items-center gap-2 ml-auto">
+            <TicketSearch defaultValue={search} />
+            <TicketFilters currentStatus={status} currentPriority={priority} />
+          </div>
         </div>
-        <TicketTable
+        <BulkTicketTable
           tickets={tickets}
           currentUserId={user.id}
-          tenantId={user.tenantId}
           currentSort={sort}
           currentDir={dir}
           currentStatus={status}
