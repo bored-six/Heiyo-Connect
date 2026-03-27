@@ -88,7 +88,7 @@ export default async function SettingsPage() {
           members={members}
           currentUserId={user.id}
           currentUserRole={user.role}
-          inviteUrl={`${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/sign-up?join=${user.tenant.slug}`}
+          inviteUrl={`${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/join/${user.tenant.slug}`}
         />
       </section>
     </main>
