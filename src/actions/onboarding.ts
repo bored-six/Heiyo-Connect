@@ -67,3 +67,42 @@ export async function createTenantAndUser(
 
   redirect("/dashboard")
 }
+
+export async function joinTenant(
+  _prev: { error: string | null } | null,
+  formData: FormData
+): Promise<{ error: string | null }> {
+  const { userId } = await auth()
+  if (!userId) redirect("/sign-in")
+
+  const slug = formData.get("slug") as string
+  if (!slug) return { error: "Invalid invite link" }
+
+  const clerkUser = await currentUser()
+  if (!clerkUser) redirect("/sign-in")
+
+  const existing = await prisma.user.findUnique({ where: { clerkId: userId } })
+  if (existing) redirect("/dashboard")
+
+  const tenant = await prisma.tenant.findUnique({ where: { slug } })
+  if (!tenant) return { error: "Invalid or expired invite link. Ask your team for a new one." }
+
+  try {
+    await prisma.user.create({
+      data: {
+        clerkId: userId,
+        email: clerkUser.emailAddresses[0].emailAddress,
+        name: clerkUser.firstName
+          ? `${clerkUser.firstName} ${clerkUser.lastName ?? ""}`.trim()
+          : null,
+        avatarUrl: clerkUser.imageUrl ?? null,
+        role: "AGENT",
+        tenantId: tenant.id,
+      },
+    })
+  } catch {
+    return { error: "Failed to join workspace. Please try again." }
+  }
+
+  redirect("/dashboard")
+}
