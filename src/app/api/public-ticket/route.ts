@@ -5,6 +5,30 @@ import { analyzeTicketWithProvider } from "@/lib/ai-gateway"
 import { emitTicketCreated } from "@/lib/pusher-server"
 import { Priority, Channel } from "@prisma/client"
 
+// ---------------------------------------------------------------------------
+// Simple in-memory rate limiter — 5 submissions per IP per 10 minutes.
+// Good enough for a portfolio/demo; swap for Upstash Redis in production.
+// ---------------------------------------------------------------------------
+const WINDOW_MS = 10 * 60 * 1000 // 10 minutes
+const MAX_REQUESTS = 5
+
+const ipMap = new Map<string, { count: number; resetAt: number }>()
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now()
+  const entry = ipMap.get(ip)
+
+  if (!entry || now > entry.resetAt) {
+    ipMap.set(ip, { count: 1, resetAt: now + WINDOW_MS })
+    return false
+  }
+
+  if (entry.count >= MAX_REQUESTS) return true
+
+  entry.count++
+  return false
+}
+
 const PublicTicketSchema = z.object({
   slug: z.string().min(1),
   name: z.string().min(1, "Name is required").max(100),
@@ -14,6 +38,19 @@ const PublicTicketSchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  // Rate limiting — check IP from Vercel/proxy headers, fall back to direct
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
+    req.headers.get("x-real-ip") ??
+    "unknown"
+
+  if (isRateLimited(ip)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait a few minutes before submitting again." },
+      { status: 429 }
+    )
+  }
+
   try {
     const body = await req.json()
     const data = PublicTicketSchema.parse(body)
