@@ -421,52 +421,137 @@ function TicketTable({ tickets, onSelect, onAssign, onResolve, onStatusChange }:
 
 // ── Customers View ────────────────────────────────────────────────────────────
 
+const AVATAR_COLORS = [
+  "bg-violet-100 text-violet-700",
+  "bg-blue-100 text-blue-700",
+  "bg-emerald-100 text-emerald-700",
+  "bg-amber-100 text-amber-700",
+  "bg-rose-100 text-rose-700",
+  "bg-cyan-100 text-cyan-700",
+  "bg-orange-100 text-orange-700",
+  "bg-pink-100 text-pink-700",
+]
+
+function getAvatarColor(name: string) {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
+}
+
+function getInitials(name: string) {
+  const parts = name.trim().split(" ")
+  return parts.length >= 2 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.slice(0, 2).toUpperCase()
+}
+
 function CustomersView({ tickets }: { tickets: DemoTicket[] }) {
+  const [query, setQuery] = useState("")
+
   const customers = useMemo(() =>
     DEMO_CUSTOMERS.map((c) => {
-      const customerTickets = tickets.filter((t) => t.customer.id === c.id)
-      const open = customerTickets.filter((t) => t.status === "OPEN" || t.status === "IN_PROGRESS").length
-      const resolved = customerTickets.filter((t) => t.status === "RESOLVED" || t.status === "CLOSED").length
-      return { ...c, total: customerTickets.length, open, resolved }
+      const ct = tickets.filter((t) => t.customer.id === c.id)
+      const open = ct.filter((t) => t.status === "OPEN" || t.status === "IN_PROGRESS").length
+      const resolved = ct.filter((t) => t.status === "RESOLVED" || t.status === "CLOSED").length
+      const lastTicketAt = ct.length > 0 ? ct.reduce((a, b) => a.createdAt > b.createdAt ? a : b).createdAt : null
+      return { ...c, total: ct.length, open, resolved, lastTicketAt }
     }), [tickets])
 
+  const filtered = query.trim()
+    ? customers.filter((c) => c.name.toLowerCase().includes(query.toLowerCase()) || c.email.toLowerCase().includes(query.toLowerCase()))
+    : customers
+
+  const activeCount = customers.filter((c) => c.open > 0).length
+  const resolvedOnlyCount = customers.filter((c) => c.total > 0 && c.open === 0).length
+  const totalTickets = customers.reduce((s, c) => s + c.total, 0)
+
+  function timeAgo(date: Date) {
+    const days = Math.floor((Date.now() - date.getTime()) / 86400000)
+    if (days === 0) return "Today"
+    if (days === 1) return "Yesterday"
+    if (days < 30) return `${days}d ago`
+    return `${Math.floor(days / 30)}mo ago`
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Customers</h1>
-        <p className="text-sm text-muted-foreground mt-1">{DEMO_CUSTOMERS.length} customers</p>
+        <p className="text-sm text-muted-foreground mt-1">Everyone who has ever submitted a ticket in your workspace</p>
       </div>
-      <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50">
-            <tr>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Customer</th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Company</th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Total</th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Open</th>
-              <th className="text-left px-4 py-3 font-medium text-muted-foreground">Resolved</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {customers.map((c) => (
-              <tr key={c.id} className="hover:bg-muted/40 transition-colors">
-                <td className="px-4 py-3">
-                  <p className="font-medium">{c.name}</p>
-                  <p className="text-xs text-muted-foreground">{c.email}</p>
-                </td>
-                <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{c.company}</td>
-                <td className="px-4 py-3 font-medium">{c.total}</td>
-                <td className="px-4 py-3">
-                  {c.open > 0 ? (
-                    <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-500/15 text-emerald-400">{c.open}</span>
-                  ) : <span className="text-muted-foreground">—</span>}
-                </td>
-                <td className="px-4 py-3 text-muted-foreground">{c.resolved}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="rounded-lg border bg-card p-4 shadow-sm">
+          <p className="text-xs text-muted-foreground mb-2">Total Customers</p>
+          <p className="text-2xl font-bold">{customers.length}</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4 shadow-sm">
+          <p className="text-xs text-muted-foreground mb-2">Have Open Tickets</p>
+          <p className="text-2xl font-bold text-emerald-600">{activeCount}</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4 shadow-sm">
+          <p className="text-xs text-muted-foreground mb-2">Fully Resolved</p>
+          <p className="text-2xl font-bold">{resolvedOnlyCount}</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4 shadow-sm">
+          <p className="text-xs text-muted-foreground mb-2">Total Tickets</p>
+          <p className="text-2xl font-bold">{totalTickets}</p>
+        </div>
       </div>
+
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input
+          type="text"
+          placeholder="Search customers by name or email…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full rounded-lg border border-input bg-background pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
+        />
+      </div>
+
+      {/* Card grid */}
+      {filtered.length === 0 ? (
+        <div className="text-center py-16 text-sm text-muted-foreground">No customers match &ldquo;{query}&rdquo;</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((c) => {
+            const hasOpen = c.open > 0
+            return (
+              <div key={c.id} className="rounded-xl border bg-card p-5 shadow-sm space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`size-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 select-none ${getAvatarColor(c.name)}`}>
+                      {getInitials(c.name)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold truncate">{c.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{c.email}</p>
+                    </div>
+                  </div>
+                  {hasOpen && <span className="size-2 rounded-full bg-emerald-500 mt-1 shrink-0" title="Has open tickets" />}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 rounded-lg bg-muted/50 px-3 py-2 text-center">
+                    <p className="text-lg font-bold">{c.total}</p>
+                    <p className="text-xs text-muted-foreground">Total</p>
+                  </div>
+                  <div className={`flex-1 rounded-lg px-3 py-2 text-center ${hasOpen ? "bg-emerald-50" : "bg-muted/50"}`}>
+                    <p className={`text-lg font-bold ${hasOpen ? "text-emerald-600" : ""}`}>{c.open}</p>
+                    <p className="text-xs text-muted-foreground">Open</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{c.company}</span>
+                  <span>Last active: {c.lastTicketAt ? timeAgo(c.lastTicketAt) : "Never"}</span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
