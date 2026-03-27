@@ -1,8 +1,7 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { UserCheck } from "lucide-react";
 import { assignTicket } from "@/actions/tickets";
 
 type Agent = {
@@ -20,39 +19,48 @@ export function AssignAgentDropdown({
   agents: Agent[];
   currentAgentId: string | null;
 }) {
+  const [selectedId, setSelectedId] = useState(currentAgentId ?? "unassigned");
   const [isPending, startTransition] = useTransition();
 
   function handleChange(agentId: string) {
+    const previous = selectedId;
+    setSelectedId(agentId); // optimistic
     const resolved = agentId === "unassigned" ? null : agentId;
     startTransition(async () => {
       const result = await assignTicket({ ticketId, agentId: resolved });
       if (result.success) {
         const agent = agents.find((a) => a.id === agentId);
         toast.success(
-          resolved ? `Assigned to ${agent?.name ?? agent?.email ?? "agent"}` : "Unassigned"
+          resolved ? `Assigned to ${agent?.name ?? agent?.email}` : "Unassigned"
         );
       } else {
+        setSelectedId(previous); // revert
         toast.error(result.error);
       }
     });
   }
 
   return (
-    <div className="flex items-center gap-1.5">
-      <UserCheck className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+    <div className="space-y-1.5">
+      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+        Assignee
+      </label>
       <select
-        defaultValue={currentAgentId ?? "unassigned"}
+        value={selectedId}
         disabled={isPending}
         onChange={(e) => handleChange(e.target.value)}
-        className="text-sm text-muted-foreground bg-transparent border-0 p-0 focus:outline-none disabled:opacity-50 cursor-pointer hover:text-foreground transition-colors"
+        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50 cursor-pointer"
       >
-        <option value="unassigned">Unassigned</option>
+        <option value="unassigned">— Unassigned —</option>
         {agents.map((agent) => (
           <option key={agent.id} value={agent.id}>
             {agent.name ?? agent.email}
           </option>
         ))}
       </select>
+      {isPending && (
+        <p className="text-xs text-muted-foreground">Saving…</p>
+      )}
     </div>
   );
 }
