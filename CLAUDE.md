@@ -6,16 +6,18 @@
 
 ## ⛔ HARD GATES — THESE RUN BEFORE EVERYTHING ELSE. NO EXCEPTIONS.
 
-### GATE 1 — ASK BEFORE TOUCHING ANYTHING
+### GATE 1 — UNDERSTAND BEFORE TOUCHING ANYTHING
 
-**Before writing a single line of code, reading a file for implementation purposes, or making ANY change, you MUST ask:**
+**Infer autonomously from context. Only ask if genuinely ambiguous after trying to infer.**
 
-1. **Ticket ID** — HC number (e.g. HC-001), or explicit ad-hoc confirmation
-2. **Scope** — Bug fix, new feature, or enhancement?
-3. **Affected areas** — Which files/routes/components? What's off-limits?
-4. **Acceptance criteria** — How do we know it's done?
+| Item | Rule |
+|------|------|
+| **Ticket ID** | Use the HC number the user provides. If none given, name the PRD from the feature and note `ad-hoc`. Never ask. |
+| **Scope** | Infer from the request — "add X" = new feature, "fix X" = bug fix, "change X" = enhancement. |
+| **Affected areas** | Read the codebase to find relevant files. Don't ask — explore. |
+| **Acceptance criteria** | Derive from the user's description. Implement what was asked; note any assumptions in the PRD. |
 
-**If you have not received answers to all 4 questions → STOP. Ask. Do not proceed.**
+**Only ask when there are two genuinely incompatible implementation paths and the choice is irreversible.**
 
 ---
 

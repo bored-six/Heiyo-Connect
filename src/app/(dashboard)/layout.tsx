@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
-import { NavLogoutButton } from "@/components/dashboard/nav-logout-button";
+import { NavProfileButton } from "@/components/dashboard/nav-profile-button";
 import { NavUsageBar } from "@/components/dashboard/nav-usage-bar";
 import { WorkspaceSwitcher } from "@/components/dashboard/workspace-switcher";
 import { NavNotificationBell } from "@/components/dashboard/nav-notification-bell";
@@ -62,7 +62,7 @@ export default async function DashboardLayout({
   // No workspace membership — send to onboarding
   if (!data) redirect("/onboarding");
 
-  const { active, all, joinRequests } = data;
+  const { user, active, all, joinRequests } = data;
 
   const workspaces = all.map((m) => ({
     tenantId: m.tenantId,
@@ -130,7 +130,11 @@ export default async function DashboardLayout({
               />
             )}
 
-            <NavLogoutButton />
+            <NavProfileButton
+              name={user.name}
+              email={user.email}
+              avatarUrl={user.avatarUrl}
+            />
 
             <NavUsageBar
               initialUsage={active.tenant.dailyAiUsage}
