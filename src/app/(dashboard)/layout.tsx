@@ -68,6 +68,12 @@ export default async function DashboardLayout({
                 Tickets
               </Link>
               <Link
+                href="/dashboard/customers"
+                className="transition-colors hover:text-slate-900"
+              >
+                Customers
+              </Link>
+              <Link
                 href="/dashboard/reports"
                 className="transition-colors hover:text-slate-900"
               >
