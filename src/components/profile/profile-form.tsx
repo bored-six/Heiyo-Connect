@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { Role } from "@prisma/client"
-import { Crown, ShieldCheck, User, Eye, Check, Loader2 } from "lucide-react"
+import { Crown, ShieldCheck, User, Eye, Loader2 } from "lucide-react"
 import { updateProfile } from "@/actions/profile"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -41,11 +42,11 @@ export function ProfileForm({
     tenantName: string
   }
 }) {
+  const router = useRouter()
   const [name, setName] = useState(user.name ?? "")
   const [selectedAvatar, setSelectedAvatar] = useState<AvatarPresetId | null>(
     isPresetAvatar(user.avatarUrl) ? user.avatarUrl : null
   )
-  const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -54,7 +55,6 @@ export function ProfileForm({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
-    setSaved(false)
 
     startTransition(async () => {
       const result = await updateProfile({
@@ -62,8 +62,7 @@ export function ProfileForm({
         avatarUrl: selectedAvatar ?? "",
       })
       if (result.success) {
-        setSaved(true)
-        setTimeout(() => setSaved(false), 3000)
+        router.push("/dashboard")
       } else {
         setError(result.error)
       }
@@ -151,7 +150,9 @@ export function ProfileForm({
                   </div>
                   {isSelected && (
                     <div className="absolute -bottom-1 -right-1 size-4 rounded-full bg-indigo-600 flex items-center justify-center">
-                      <Check className="size-2.5 text-white" strokeWidth={3} />
+                      <svg viewBox="0 0 12 12" fill="none" className="size-2.5">
+                        <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
                     </div>
                   )}
                 </button>
@@ -168,12 +169,8 @@ export function ProfileForm({
         {error && <p className="text-sm text-destructive">{error}</p>}
 
         <Button type="submit" disabled={isPending} className="gap-2">
-          {isPending ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : saved ? (
-            <Check className="size-4" />
-          ) : null}
-          {saved ? "Saved" : "Save changes"}
+          {isPending && <Loader2 className="size-4 animate-spin" />}
+          {isPending ? "Saving…" : "Save changes"}
         </Button>
       </form>
     </div>
