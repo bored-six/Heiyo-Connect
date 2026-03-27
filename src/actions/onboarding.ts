@@ -121,27 +121,33 @@ export async function joinTenant(
       })
     }
 
-    // Create membership (upsert so clicking the link twice is safe)
-    await prisma.tenantMembership.upsert({
+    // Already a member → just set cookie and send to dashboard
+    const existing = await prisma.tenantMembership.findUnique({
       where: { userId_tenantId: { userId: user.id, tenantId: tenant.id } },
-      create: { userId: user.id, tenantId: tenant.id, role: "AGENT" },
-      update: {},
     })
+    if (existing) {
+      const { cookies } = await import("next/headers")
+      const cookieStore = await cookies()
+      cookieStore.set("hw_workspace", tenant.id, {
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 365,
+      })
+      redirect("/dashboard")
+    }
 
-    // Set active workspace cookie
-    const { cookies } = await import("next/headers")
-    const cookieStore = await cookies()
-    cookieStore.set("hw_workspace", tenant.id, {
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 365,
+    // Submit a join request — owner/admin must approve before access is granted
+    await prisma.joinRequest.upsert({
+      where: { userId_tenantId: { userId: user.id, tenantId: tenant.id } },
+      create: { userId: user.id, tenantId: tenant.id, status: "PENDING" },
+      update: { status: "PENDING", updatedAt: new Date() },
     })
   } catch {
-    return { error: "Failed to join workspace. Please try again." }
+    return { error: "Failed to send join request. Please try again." }
   }
 
-  redirect("/dashboard")
+  redirect(`/join/${slug}`)
 }
 
 function extractSlug(input: string): string {

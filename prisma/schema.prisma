@@ -29,11 +29,12 @@ model Tenant {
   lastUsageReset DateTime   @default(now())
 
   // Relations
-  memberships TenantMembership[]
-  customers   Customer[]
-  tickets     Ticket[]
-  messages    Message[]
-  apiKeys     ApiKey[]
+  memberships  TenantMembership[]
+  joinRequests JoinRequest[]
+  customers    Customer[]
+  tickets      Ticket[]
+  messages     Message[]
+  apiKeys      ApiKey[]
 
   @@map("tenants")
 }
@@ -49,6 +50,7 @@ model User {
 
   // Relations
   memberships     TenantMembership[]
+  joinRequests    JoinRequest[]
   assignedTickets Ticket[]           @relation("AssignedAgent")
   messages        Message[]
 
@@ -159,6 +161,24 @@ model Message {
   @@map("messages")
 }
 
+model JoinRequest {
+  id        String            @id @default(cuid())
+  status    JoinRequestStatus @default(PENDING)
+  message   String?           // optional note from the requester
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tenantId])
+  @@index([tenantId, status])
+  @@map("join_requests")
+}
+
 model ApiKey {
   id          String   @id @default(cuid())
   name        String
@@ -226,4 +246,10 @@ enum SenderRole {
   USER    // Customer message
   AGENT   // Agent reply
   SYSTEM  // Audit / system event
+}
+
+enum JoinRequestStatus {
+  PENDING
+  APPROVED
+  DENIED
 }

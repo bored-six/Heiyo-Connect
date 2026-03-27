@@ -2,6 +2,8 @@ import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
+import { JoinRequestForm } from "@/components/join/join-request-form"
+import { Clock } from "lucide-react"
 
 export default async function JoinPage({
   params,
@@ -17,35 +19,105 @@ export default async function JoinPage({
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="bg-white rounded-xl shadow-sm border p-8 w-full max-w-md text-center">
           <h1 className="text-xl font-semibold tracking-tight mb-2">Invalid invite link</h1>
-          <p className="text-sm text-gray-500">This link is invalid or has expired. Ask your team for a new one.</p>
+          <p className="text-sm text-gray-500">
+            This link is invalid or has expired. Ask your team for a new one.
+          </p>
         </div>
       </div>
     )
   }
 
-  // Already logged into Clerk — skip auth pages entirely
+  // Logged-in user flow
   if (userId) {
-    const existing = await prisma.user.findUnique({ where: { clerkId: userId } })
-    if (existing) {
-      // Already a member of some workspace — go to dashboard
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkId: userId },
+      include: {
+        memberships: { where: { tenantId: tenant.id } },
+        joinRequests: { where: { tenantId: tenant.id } },
+      },
+    })
+
+    // No DB record yet → onboarding creates the user record first
+    if (!dbUser) {
+      redirect(`/onboarding?join=${encodeURIComponent(slug)}`)
+    }
+
+    // Already a member of this workspace
+    if (dbUser.memberships.length > 0) {
       redirect("/dashboard")
     }
-    // Authenticated but no DB record yet — go straight to join onboarding
-    redirect(`/onboarding?join=${encodeURIComponent(slug)}`)
+
+    // Has a pending request
+    const pendingRequest = dbUser.joinRequests.find((r) => r.status === "PENDING")
+    if (pendingRequest) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="bg-white rounded-xl shadow-sm border p-8 w-full max-w-md text-center space-y-4">
+            <div className="flex justify-center">
+              <div className="size-12 rounded-full bg-amber-100 flex items-center justify-center">
+                <Clock className="size-5 text-amber-600" />
+              </div>
+            </div>
+            <h1 className="text-xl font-semibold tracking-tight">Request pending</h1>
+            <p className="text-sm text-gray-500">
+              Your request to join{" "}
+              <span className="font-medium text-gray-700">{tenant.name}</span> is awaiting
+              approval. You&apos;ll be notified once an owner approves it.
+            </p>
+            <Link href="/dashboard" className="inline-block text-sm text-primary hover:underline">
+              Go to your dashboard →
+            </Link>
+          </div>
+        </div>
+      )
+    }
+
+    // Was denied
+    const denied = dbUser.joinRequests.find((r) => r.status === "DENIED")
+    if (denied) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="bg-white rounded-xl shadow-sm border p-8 w-full max-w-md text-center space-y-4">
+            <h1 className="text-xl font-semibold tracking-tight">Request declined</h1>
+            <p className="text-sm text-gray-500">
+              Your request to join{" "}
+              <span className="font-medium text-gray-700">{tenant.name}</span> was declined.
+              Contact the workspace owner if you think this was a mistake.
+            </p>
+          </div>
+        </div>
+      )
+    }
+
+    // Show request form
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="bg-white rounded-xl shadow-sm border p-8 w-full max-w-md space-y-6">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight mb-1">
+              Join {tenant.name}
+            </h1>
+            <p className="text-sm text-gray-500">
+              Send a request to join this workspace. An owner or admin will approve it and
+              assign your role.
+            </p>
+          </div>
+          <JoinRequestForm tenantId={tenant.id} tenantName={tenant.name} />
+        </div>
+      </div>
+    )
   }
 
-  // Not logged in — show options for both new and existing users
+  // Not logged in — show auth options
   const joinParam = `?join=${encodeURIComponent(slug)}`
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white rounded-xl shadow-sm border p-8 w-full max-w-md">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold tracking-tight mb-1">
-            Join {tenant.name}
-          </h1>
+          <h1 className="text-2xl font-semibold tracking-tight mb-1">Join {tenant.name}</h1>
           <p className="text-sm text-gray-500">
-            You&apos;ve been invited to join this workspace.
+            Sign in or create an account to request access to this workspace.
           </p>
         </div>
 
@@ -63,10 +135,6 @@ export default async function JoinPage({
             Sign in to an existing account
           </Link>
         </div>
-
-        <p className="text-xs text-gray-400 mt-5 text-center">
-          You&apos;ll join <span className="font-medium text-gray-600">{tenant.name}</span> as an Agent.
-        </p>
       </div>
     </div>
   )
