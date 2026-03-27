@@ -3,6 +3,13 @@
 <!-- Format: ## [YYYY-MM-DD] - Category -->
 <!-- Max 50 entries. Promote stable patterns to steering docs. -->
 
+## [2026-03-28] - HC-025 Profile
+
+- **User.name and User.avatarUrl already exist in the Prisma schema** — no migration needed for profile editing; both fields have been nullable since the original schema.
+- **No file upload infrastructure exists** — avatar is stored as a URL string. URL input with live preview + onError fallback to initials is the right pattern until storage (S3/Cloudinary) is added.
+- **Nav profile dropdown replaces NavLogoutButton** — logout moved into the profile dropdown alongside a "My Profile" link. NavLogoutButton is no longer used in the main layout.
+- **`getNavData` in layout.tsx already fetches `user` with name/email/avatarUrl** — the `user` field was already in the returned object, just not destructured. No extra DB query needed to pass profile data to the nav.
+
 ## [2026-03-26] - HC-013 Patterns
 
 - **Arctic Frost theme: `dark` class on `<html>` was the root cause of all dark overrides** — removing it from `layout.tsx` className is the single toggle that makes all Shadcn/Tailwind semantic tokens flip to light. Without it, even correct `:root` variables get overridden by the `@custom-variant dark` selector.
