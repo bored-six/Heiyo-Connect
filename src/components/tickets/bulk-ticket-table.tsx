@@ -4,6 +4,8 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import type { TicketStatus, Priority } from "@/lib/types"
+
+const ALL_STATUSES: TicketStatus[] = ["OPEN", "IN_PROGRESS", "WAITING_ON_CUSTOMER", "RESOLVED", "CLOSED"]
 import { bulkUpdateTickets, updateTicketStatus, assignTicket } from "@/actions/tickets"
 import { TicketEmptyState } from "@/components/tickets/empty-state"
 import { cn } from "@/lib/utils"
@@ -278,7 +280,7 @@ export function BulkTicketTable({
                           }}
                           className="appearance-none rounded-full pl-2.5 pr-6 py-0.5 text-xs font-medium border-0 cursor-pointer outline-none disabled:opacity-60"
                         >
-                          {Object.values(TicketStatus).map((s) => (
+                          {ALL_STATUSES.map((s) => (
                             <option key={s} value={s} className="bg-background text-foreground">
                               {STATUS_LABELS[s]}
                             </option>
