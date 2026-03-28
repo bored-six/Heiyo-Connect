@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { AiProvider } from "@prisma/client"
+import type { AiProvider } from "@/lib/types"
 import { updateAiProvider } from "@/actions/settings"
 
 const PROVIDER_LABELS: Record<AiProvider, string> = {

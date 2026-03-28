@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { X, Activity } from "lucide-react"
-import { Priority, TicketStatus } from "@prisma/client"
+import type { Priority, TicketStatus } from "@/lib/types"
 import Link from "next/link"
 
 type ActivityItem = {

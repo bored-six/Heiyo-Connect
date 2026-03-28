@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Role } from "@prisma/client"
+import type { Role } from "@/lib/types"
 import { Crown, ShieldCheck, User, Eye, Loader2 } from "lucide-react"
 import { updateProfile } from "@/actions/profile"
 import { Button } from "@/components/ui/button"

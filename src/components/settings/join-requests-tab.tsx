@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { toast } from "sonner"
-import { Role } from "@prisma/client"
+import type { Role } from "@/lib/types"
 import { approveJoinRequest, denyJoinRequest } from "@/actions/join-requests"
 import { UserCheck, UserX, Clock } from "lucide-react"
 

@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useRef, useEffect } from "react"
 import { Bell } from "lucide-react"
-import { Role } from "@prisma/client"
+import type { Role } from "@/lib/types"
 import { approveJoinRequest, denyJoinRequest } from "@/actions/join-requests"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"

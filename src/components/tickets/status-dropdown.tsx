@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { TicketStatus } from "@prisma/client"
 import { toast } from "sonner"
 import { updateTicketStatus } from "@/actions/tickets"
+
+type TicketStatus = "OPEN" | "IN_PROGRESS" | "WAITING_ON_CUSTOMER" | "RESOLVED" | "CLOSED"
 
 const STATUS_LABELS: Record<TicketStatus, string> = {
   OPEN: "Open",
@@ -12,6 +13,8 @@ const STATUS_LABELS: Record<TicketStatus, string> = {
   RESOLVED: "Resolved",
   CLOSED: "Closed",
 }
+
+const ALL_STATUSES: TicketStatus[] = ["OPEN", "IN_PROGRESS", "WAITING_ON_CUSTOMER", "RESOLVED", "CLOSED"]
 
 export function StatusDropdown({
   ticketId,
@@ -49,7 +52,7 @@ export function StatusDropdown({
         onChange={(e) => handleChange(e.target.value)}
         className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50 cursor-pointer"
       >
-        {Object.values(TicketStatus).map((s) => (
+        {ALL_STATUSES.map((s) => (
           <option key={s} value={s}>
             {STATUS_LABELS[s]}
           </option>

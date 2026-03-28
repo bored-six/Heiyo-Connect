@@ -2,7 +2,7 @@
 
 import { useReducer, useState, useMemo } from "react"
 import { DEMO_TICKETS, DEMO_CUSTOMERS, type DemoTicket, type DemoCustomer } from "@/lib/demo-data"
-import type { TicketStatus, Priority, Channel } from "@prisma/client"
+import type { TicketStatus, Priority, Channel } from "@/lib/types"
 import { X, Plus, Search, ChevronDown } from "lucide-react"
 
 // ── Types ────────────────────────────────────────────────────────────────────

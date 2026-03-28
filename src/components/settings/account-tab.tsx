@@ -2,7 +2,7 @@
 
 import { useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
-import { Role } from "@prisma/client"
+import type { Role } from "@/lib/types"
 import { LogOut, Crown, ShieldCheck, User, Eye } from "lucide-react"
 import { AvatarDisplay } from "@/lib/avatars"
 

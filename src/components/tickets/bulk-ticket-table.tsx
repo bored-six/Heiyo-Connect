@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { TicketStatus, Priority } from "@prisma/client"
+import type { TicketStatus, Priority } from "@/lib/types"
 import { bulkUpdateTickets, updateTicketStatus, assignTicket } from "@/actions/tickets"
 import { TicketEmptyState } from "@/components/tickets/empty-state"
 import { cn } from "@/lib/utils"

@@ -1,4 +1,4 @@
-import type { TicketStatus, Priority, Channel } from "@prisma/client"
+import type { TicketStatus, Priority, Channel } from "@/lib/types"
 
 export type DemoCustomer = {
   id: string

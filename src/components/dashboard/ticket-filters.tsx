@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { TicketStatus, Priority } from "@prisma/client"
+import type { TicketStatus, Priority } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 export function TicketFilters({

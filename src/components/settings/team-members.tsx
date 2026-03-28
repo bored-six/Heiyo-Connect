@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { Role } from "@prisma/client";
+import type { Role } from "@/lib/types";
 import { updateMemberRole, removeMember } from "@/actions/team";
 import { CopyInviteLink } from "./copy-invite-link";
 import { Users, Crown, ShieldCheck, User, Eye } from "lucide-react";
