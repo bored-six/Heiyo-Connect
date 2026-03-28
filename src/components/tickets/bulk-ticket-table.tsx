@@ -150,7 +150,7 @@ export function BulkTicketTable({
   }
 
   async function handleResolve(ticketId: string) {
-    await updateTicketStatus({ ticketId, status: TicketStatus.RESOLVED })
+    await updateTicketStatus({ ticketId, status: "RESOLVED" })
     router.refresh()
   }
 
@@ -229,7 +229,7 @@ export function BulkTicketTable({
               <TicketEmptyState filtered={!!(currentStatus || currentPriority)} />
             ) : (
               tickets.map((ticket) => {
-                const isResolved = ticket.status === TicketStatus.RESOLVED || ticket.status === TicketStatus.CLOSED
+                const isResolved = ticket.status === "RESOLVED" || ticket.status === "CLOSED"
                 const isAssignedToMe = ticket.assignedAgent?.id === currentUserId
                 const isSelected = selected.has(ticket.id)
 

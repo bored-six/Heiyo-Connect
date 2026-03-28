@@ -67,7 +67,7 @@ type OptimisticAction =
 function applyOptimistic(tickets: OptimisticTicket[], action: OptimisticAction): OptimisticTicket[] {
   return tickets.map((t) => {
     if (t.id !== action.ticketId) return t
-    if (action.type === "resolve") return { ...t, status: TicketStatus.RESOLVED, optimisticStatus: TicketStatus.RESOLVED }
+    if (action.type === "resolve") return { ...t, status: "RESOLVED", optimisticStatus: "RESOLVED" }
     if (action.type === "assign") return { ...t, optimisticAssigned: true }
     if (action.type === "setStatus") return { ...t, status: action.status, optimisticStatus: action.status }
     return t
@@ -155,7 +155,7 @@ export function TicketTable({
     React.startTransition(() => {
       addOptimistic({ type: "resolve", ticketId })
     })
-    await updateTicketStatus({ ticketId, status: TicketStatus.RESOLVED })
+    await updateTicketStatus({ ticketId, status: "RESOLVED" })
   }
 
   async function handleAssignToMe(ticketId: string) {
@@ -207,7 +207,7 @@ export function TicketTable({
               <TicketEmptyState filtered={!!(currentStatus || currentPriority)} />
             ) : (
               optimisticTickets.map((ticket) => {
-                const isResolved = ticket.status === TicketStatus.RESOLVED || ticket.status === TicketStatus.CLOSED
+                const isResolved = ticket.status === "RESOLVED" || ticket.status === "CLOSED"
                 const isAssignedToMe = ticket.assignedAgent?.id === currentUserId || ticket.optimisticAssigned
 
                 return (
