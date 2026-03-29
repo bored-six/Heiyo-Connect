@@ -1,10 +1,26 @@
 "use client"
 
-import { useReducer, useState, useMemo } from "react"
+import { useReducer, useState, useMemo, useEffect, useRef } from "react"
 import { DEMO_TICKETS, DEMO_CUSTOMERS, type DemoTicket, type DemoCustomer } from "@/lib/demo-data"
 import type { TicketStatus, Priority, Channel } from "@/lib/types"
 import { X, Plus, Search, ChevronDown } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { motion, AnimatePresence } from "framer-motion"
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  BarChart,
+  Bar,
+} from "recharts"
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -69,13 +85,111 @@ const STATUS_LABELS: Record<TicketStatus, string> = {
   CLOSED: "Closed",
 }
 
-// ── Stat Card ─────────────────────────────────────────────────────────────────
+// ── Sparkline ────────────────────────────────────────────────────────────────
 
-function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
+function Sparkline({ data, color }: { data: number[]; color: string }) {
+  const allZero = data.every((v) => v === 0)
+  if (allZero) {
+    return (
+      <svg viewBox="0 0 60 20" className="w-full h-5" preserveAspectRatio="none">
+        <line x1="0" y1="10" x2="60" y2="10" stroke={color} strokeWidth="1.5" strokeOpacity="0.35" />
+      </svg>
+    )
+  }
+  const max = Math.max(...data, 1)
+  const points = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * 60
+    const y = 18 - (v / max) * 16
+    return `${x.toFixed(1)},${y.toFixed(1)}`
+  })
+  return (
+    <svg viewBox="0 0 60 20" className="w-full h-5" preserveAspectRatio="none">
+      <path d={`M ${points.join(" L ")}`} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" />
+    </svg>
+  )
+}
+
+// ── Animated Stat Card (matches real dashboard) ──────────────────────────────
+
+function StatCard({ label, value, colorClass, sparkline, sparklineColor }: {
+  label: string; value: number; colorClass: string; sparkline: number[]; sparklineColor: string
+}) {
+  const [displayed, setDisplayed] = useState(0)
+  const frameRef = useRef<number | null>(null)
+  const startRef = useRef<number | null>(null)
+  const DURATION = 800
+
+  useEffect(() => {
+    startRef.current = null
+    if (value === 0) { setDisplayed(0); return }
+    const animate = (ts: number) => {
+      if (!startRef.current) startRef.current = ts
+      const progress = Math.min((ts - startRef.current) / DURATION, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setDisplayed(Math.round(eased * value))
+      if (progress < 1) frameRef.current = requestAnimationFrame(animate)
+    }
+    frameRef.current = requestAnimationFrame(animate)
+    return () => { if (frameRef.current) cancelAnimationFrame(frameRef.current) }
+  }, [value])
+
   return (
     <div className="rounded-lg border bg-card p-4 shadow-sm">
       <p className="text-sm text-muted-foreground">{label}</p>
-      <p className={`text-3xl font-bold mt-1 tabular-nums ${color}`}>{value}</p>
+      <p className={`text-3xl font-bold mt-1 tabular-nums ${colorClass}`}>{displayed}</p>
+      <div className="mt-3 opacity-70">
+        <Sparkline data={sparkline} color={sparklineColor} />
+      </div>
+    </div>
+  )
+}
+
+// ── Donut Card (matches real dashboard) ──────────────────────────────────────
+
+function DonutCard({ resolved, total }: { resolved: number; total: number }) {
+  const rate = total === 0 ? 0 : Math.round((resolved / total) * 100)
+  const R = 26; const SIZE = 68; const cx = SIZE / 2
+  const circumference = 2 * Math.PI * R
+
+  const [progress, setProgress] = useState(0)
+  const frameRef = useRef<number | null>(null)
+  const startRef = useRef<number | null>(null)
+  const DURATION = 900
+
+  useEffect(() => {
+    startRef.current = null
+    if (rate === 0) { setProgress(0); return }
+    const animate = (ts: number) => {
+      if (!startRef.current) startRef.current = ts
+      const p = Math.min((ts - startRef.current) / DURATION, 1)
+      const eased = 1 - Math.pow(1 - p, 3)
+      setProgress(eased * rate)
+      if (p < 1) frameRef.current = requestAnimationFrame(animate)
+    }
+    frameRef.current = requestAnimationFrame(animate)
+    return () => { if (frameRef.current) cancelAnimationFrame(frameRef.current) }
+  }, [rate])
+
+  const dashArray = `${(progress / 100) * circumference} ${circumference}`
+
+  return (
+    <div className="rounded-lg border bg-card p-4 shadow-sm">
+      <p className="text-sm text-muted-foreground">Resolved</p>
+      <div className="flex items-center gap-4 mt-2">
+        <div className="relative shrink-0">
+          <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+            <circle cx={cx} cy={cx} r={R} fill="none" stroke="currentColor" strokeWidth="5" className="text-muted/40" />
+            <circle cx={cx} cy={cx} r={R} fill="none" stroke="#64748b" strokeWidth="5" strokeDasharray={dashArray} strokeLinecap="round" transform={`rotate(-90 ${cx} ${cx})`} />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-xs font-bold text-muted-foreground tabular-nums">{Math.round(progress)}%</span>
+          </div>
+        </div>
+        <div>
+          <p className="text-3xl font-bold text-muted-foreground tabular-nums mt-1">{resolved}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">of {total} tickets</p>
+        </div>
+      </div>
     </div>
   )
 }
@@ -557,83 +671,166 @@ function CustomersView({ tickets }: { tickets: DemoTicket[] }) {
   )
 }
 
-// ── Reports View ──────────────────────────────────────────────────────────────
+// ── Reports View (Recharts — matches real dashboard) ─────────────────────────
 
-function BarRow({ label, count, total, color }: { label: string; count: number; total: number; color: string }) {
-  const pct = total === 0 ? 0 : Math.round((count / total) * 100)
+const REPORT_PRIORITY_COLORS: Record<string, string> = {
+  LOW: "#64748b", MEDIUM: "#eab308", HIGH: "#f97316", CRITICAL: "#ef4444",
+}
+
+function ChartTooltip({ active, payload, label }: {
+  active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string
+}) {
+  if (!active || !payload?.length) return null
   return (
-    <div className="flex items-center gap-3 text-sm">
-      <span className="w-36 shrink-0 text-muted-foreground truncate">{label}</span>
-      <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
-      </div>
-      <span className="w-8 text-right font-medium tabular-nums">{count}</span>
+    <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-lg text-sm">
+      <p className="text-muted-foreground mb-1 font-medium">{label}</p>
+      {payload.map((entry) => (
+        <p key={entry.name} style={{ color: entry.color }}>
+          {entry.name}: <span className="font-semibold">{entry.value}</span>
+        </p>
+      ))}
     </div>
   )
 }
 
+function FadeUp({ index, children, className }: { index: number; children: React.ReactNode; className?: string }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.08, duration: 0.35 }} className={className}>
+      {children}
+    </motion.div>
+  )
+}
+
+function ReportStatCard({ label, value, sub, glowColor, index }: {
+  label: string; value: string; sub?: string; glowColor: string; index: number
+}) {
+  return (
+    <FadeUp index={index} className="rounded-xl border bg-card p-5 shadow-sm relative overflow-hidden">
+      <div className="absolute -top-6 -right-6 h-20 w-20 rounded-full opacity-20 blur-2xl" style={{ background: glowColor }} />
+      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="mt-2 text-3xl font-bold tracking-tight">{value}</p>
+      {sub && <p className="mt-1 text-xs text-muted-foreground">{sub}</p>}
+    </FadeUp>
+  )
+}
+
+function generateDailyVolume(tickets: DemoTicket[]) {
+  const days: { date: string; created: number; resolved: number }[] = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i)
+    const label = d.toLocaleDateString("en-US", { weekday: "short" })
+    const dayStart = new Date(d); dayStart.setHours(0, 0, 0, 0)
+    const dayEnd = new Date(d); dayEnd.setHours(23, 59, 59, 999)
+    const created = tickets.filter((t) => t.createdAt >= dayStart && t.createdAt <= dayEnd).length
+    const resolved = tickets.filter((t) => t.resolvedAt && t.resolvedAt >= dayStart && t.resolvedAt <= dayEnd).length
+    // Add some synthetic volume so the chart looks meaningful in demo
+    days.push({ date: label, created: created || Math.floor(Math.random() * 6) + 2, resolved: resolved || Math.floor(Math.random() * 4) + 1 })
+  }
+  return days
+}
+
 function ReportsView({ tickets }: { tickets: DemoTicket[] }) {
   const total = tickets.length
-  const byStatus = (s: TicketStatus) => tickets.filter((t) => t.status === s).length
   const byPriority = (p: Priority) => tickets.filter((t) => t.priority === p).length
-  const byChannel = (c: Channel) => tickets.filter((t) => t.channel === c).length
-  const resolved = byStatus("RESOLVED") + byStatus("CLOSED")
-  const resolutionRate = total === 0 ? 0 : Math.round((resolved / total) * 100)
+  const resolved = tickets.filter((t) => t.status === "RESOLVED" || t.status === "CLOSED").length
+  const aiHandled = tickets.filter((t) => t.aiAnalyzedAt).length
+  const manualOnly = total - aiHandled
+  const efficiencyScore = total === 0 ? 0 : Math.round((aiHandled / total) * 100)
+  const timeSaved = aiHandled * 10
+  const timeSavedLabel = timeSaved >= 60 ? `${Math.round(timeSaved / 60)} hrs` : `${timeSaved} min`
+
+  const dailyVolume = useMemo(() => generateDailyVolume(tickets), [tickets])
+
+  const priorityDistribution = (["CRITICAL", "HIGH", "MEDIUM", "LOW"] as Priority[])
+    .map((p) => ({ name: p, value: byPriority(p) }))
+    .filter((d) => d.value > 0)
+
+  const aiVsManual = [
+    { name: "AI Success", value: aiHandled, fill: "#6366f1" },
+    { name: "Manual", value: manualOnly, fill: "#14B8A6" },
+  ]
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Reports</h1>
-        <p className="text-sm text-muted-foreground mt-1">Overview across {total} tickets</p>
-      </div>
-
-      {/* Summary stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total Tickets" value={total} color="text-foreground" />
-        <StatCard label="Open" value={byStatus("OPEN")} color="text-emerald-500" />
-        <StatCard label="In Progress" value={byStatus("IN_PROGRESS")} color="text-blue-500" />
-        <StatCard label="Resolution Rate" value={resolutionRate} color="text-slate-500" />
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-4">
-        {/* By Status */}
-        <div className="rounded-lg border bg-card p-5 shadow-sm space-y-3">
-          <h2 className="font-medium text-sm">By Status</h2>
-          <div className="space-y-2.5">
-            <BarRow label="Open" count={byStatus("OPEN")} total={total} color="bg-emerald-400" />
-            <BarRow label="In Progress" count={byStatus("IN_PROGRESS")} total={total} color="bg-blue-400" />
-            <BarRow label="Waiting on Customer" count={byStatus("WAITING_ON_CUSTOMER")} total={total} color="bg-amber-400" />
-            <BarRow label="Resolved" count={byStatus("RESOLVED")} total={total} color="bg-slate-400" />
-            <BarRow label="Closed" count={byStatus("CLOSED")} total={total} color="bg-slate-300" />
-          </div>
+    <AnimatePresence>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Executive Insights</h1>
+          <p className="text-sm text-muted-foreground mt-1">AI performance and ticket analytics</p>
         </div>
 
-        {/* By Priority */}
-        <div className="rounded-lg border bg-card p-5 shadow-sm space-y-3">
-          <h2 className="font-medium text-sm">By Priority</h2>
-          <div className="space-y-2.5">
-            <BarRow label="Critical" count={byPriority("CRITICAL")} total={total} color="bg-red-400" />
-            <BarRow label="High" count={byPriority("HIGH")} total={total} color="bg-orange-400" />
-            <BarRow label="Medium" count={byPriority("MEDIUM")} total={total} color="bg-blue-400" />
-            <BarRow label="Low" count={byPriority("LOW")} total={total} color="bg-slate-400" />
-          </div>
+        {/* Hero stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <ReportStatCard index={0} label="Efficiency Score" value={`${efficiencyScore}%`} sub={`${aiHandled} of ${total} AI-handled`} glowColor="#6366f1" />
+          <ReportStatCard index={1} label="Time Saved" value={timeSavedLabel} sub="10 min per AI-resolved ticket" glowColor="#10b981" />
+          <ReportStatCard index={2} label="Active AI Provider" value="Gemini 2.0" glowColor="#f59e0b" />
+          <ReportStatCard index={3} label="Total Tickets" value={String(total)} sub="All time" glowColor="#3b82f6" />
         </div>
 
-        {/* By Channel */}
-        <div className="rounded-lg border bg-card p-5 shadow-sm space-y-3">
-          <h2 className="font-medium text-sm">By Channel</h2>
-          <div className="space-y-2.5">
-            <BarRow label="Email" count={byChannel("EMAIL")} total={total} color="bg-indigo-400" />
-            <BarRow label="Chat" count={byChannel("CHAT")} total={total} color="bg-violet-400" />
-            <BarRow label="API" count={byChannel("API")} total={total} color="bg-cyan-400" />
-            <BarRow label="Social" count={byChannel("SOCIAL")} total={total} color="bg-pink-400" />
-            <BarRow label="Phone" count={byChannel("PHONE")} total={total} color="bg-amber-400" />
-          </div>
+        {/* Area chart: 7-day volume */}
+        <FadeUp index={4} className="rounded-xl border bg-card p-5 shadow-sm">
+          <p className="text-sm font-semibold mb-4">Ticket Volume — Last 7 Days</p>
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={dailyVolume} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="demoGradCreated" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="demoGradResolved" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#0EA5E9" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#0EA5E9" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+              <Tooltip content={<ChartTooltip />} />
+              <Area type="monotone" dataKey="created" name="Created" stroke="#6366f1" strokeWidth={2} fill="url(#demoGradCreated)" dot={false} />
+              <Area type="monotone" dataKey="resolved" name="Resolved" stroke="#0EA5E9" strokeWidth={2} fill="url(#demoGradResolved)" dot={false} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </FadeUp>
+
+        {/* Bottom row: Pie + Bar */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Priority pie */}
+          <FadeUp index={5} className="rounded-xl border bg-card p-5 shadow-sm">
+            <p className="text-sm font-semibold mb-4">AI Priority Distribution</p>
+            <ResponsiveContainer width="100%" height={220}>
+              <PieChart>
+                <Pie data={priorityDistribution} cx="50%" cy="45%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">
+                  {priorityDistribution.map((entry) => (
+                    <Cell key={entry.name} fill={REPORT_PRIORITY_COLORS[entry.name] ?? "#6366f1"} />
+                  ))}
+                </Pie>
+                <Tooltip content={<ChartTooltip />} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </FadeUp>
+
+          {/* AI vs Manual bar */}
+          <FadeUp index={6} className="rounded-xl border bg-card p-5 shadow-sm">
+            <p className="text-sm font-semibold mb-4">AI vs Manual Handling</p>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={aiVsManual} margin={{ top: 4, right: 8, left: -20, bottom: 0 }} barSize={48}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+                <Tooltip content={<ChartTooltip />} />
+                <Bar dataKey="value" name="Tickets" radius={[6, 6, 0, 0]}>
+                  {aiVsManual.map((entry) => (
+                    <Cell key={entry.name} fill={entry.fill} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </FadeUp>
         </div>
+
+        <p className="text-xs text-center text-muted-foreground">Demo mode — data resets on refresh.</p>
       </div>
-
-      <p className="text-xs text-center text-muted-foreground">Demo mode — data resets on refresh.</p>
-    </div>
+    </AnimatePresence>
   )
 }
 
@@ -654,8 +851,18 @@ export function DemoShell() {
 
   const total = state.tickets.length
   const open = state.tickets.filter((t) => t.status === "OPEN").length
+  const inProgress = state.tickets.filter((t) => t.status === "IN_PROGRESS").length
   const critical = state.tickets.filter((t) => t.priority === "CRITICAL" && t.status !== "RESOLVED" && t.status !== "CLOSED").length
   const resolved = state.tickets.filter((t) => t.status === "RESOLVED" || t.status === "CLOSED").length
+
+  // Generate sparkline data from tickets (synthetic 7-day trend)
+  const sparklineData = useMemo(() => {
+    const gen = (count: number) => {
+      const base = Math.max(1, count)
+      return Array.from({ length: 7 }, () => Math.max(0, base + Math.floor(Math.random() * 4) - 2))
+    }
+    return { open: gen(open), inProgress: gen(inProgress), critical: gen(critical) }
+  }, [open, inProgress, critical])
 
   const navItems: { id: View; label: string }[] = [
     { id: "dashboard", label: "Dashboard" },
@@ -732,10 +939,10 @@ export function DemoShell() {
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <StatCard label="Total Tickets" value={total} color="text-foreground" />
-              <StatCard label="Open" value={open} color="text-emerald-500" />
-              <StatCard label="Critical" value={critical} color="text-red-500" />
-              <StatCard label="Resolved" value={resolved} color="text-slate-500" />
+              <StatCard label="Open" value={open} colorClass="text-emerald-600" sparkline={sparklineData.open} sparklineColor="#10b981" />
+              <StatCard label="In Progress" value={inProgress} colorClass="text-blue-600" sparkline={sparklineData.inProgress} sparklineColor="#3b82f6" />
+              <StatCard label="Critical" value={critical} colorClass="text-red-600" sparkline={sparklineData.critical} sparklineColor="#ef4444" />
+              <DonutCard resolved={resolved} total={total} />
             </div>
             <TicketTable
               tickets={state.tickets}
