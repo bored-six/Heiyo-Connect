@@ -13,7 +13,7 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { DonutCard } from "@/components/dashboard/donut-card";
 import { ActivityTimeline } from "@/components/dashboard/activity-timeline";
 import { getAiUsage } from "@/actions/settings";
-import { AiProvider, TicketStatus, Priority } from "@prisma/client";
+import type { AiProvider, TicketStatus, Priority } from "@prisma/client";
 
 const AI_PROVIDER_SHORT: Record<AiProvider, string> = {
   GEMINI: "Gemini 2.0 Flash",
@@ -21,8 +21,8 @@ const AI_PROVIDER_SHORT: Record<AiProvider, string> = {
   MISTRAL: "Mistral Small",
 };
 
-const VALID_STATUSES = Object.values(TicketStatus);
-const VALID_PRIORITIES = Object.values(Priority);
+const VALID_STATUSES: TicketStatus[] = ["OPEN", "IN_PROGRESS", "WAITING_ON_CUSTOMER", "RESOLVED", "CLOSED"];
+const VALID_PRIORITIES: Priority[] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
 export default async function DashboardPage({
   searchParams,
