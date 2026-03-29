@@ -8,6 +8,7 @@ import { NavProfileButton } from "@/components/dashboard/nav-profile-button";
 import { NavUsageBar } from "@/components/dashboard/nav-usage-bar";
 import { WorkspaceSwitcher } from "@/components/dashboard/workspace-switcher";
 import { NavNotificationBell } from "@/components/dashboard/nav-notification-bell";
+import { ThemeToggle } from "@/components/theme-toggle";
 import Link from "next/link";
 
 const WORKSPACE_COOKIE = "hw_workspace";
@@ -71,11 +72,8 @@ export default async function DashboardLayout({
   }));
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ backgroundColor: "#F8FAFC", color: "#1E293B" }}
-    >
-      <nav style={{ borderBottom: "1px solid #E2E8F0" }}>
+    <div className="min-h-screen bg-background text-foreground">
+      <nav className="border-b border-border">
         <div className="px-6 h-14 flex items-center justify-between">
           {/* Logo + workspace switcher */}
           <div className="flex items-center gap-4">
@@ -86,7 +84,7 @@ export default async function DashboardLayout({
                 <rect x="15.5" y="6" width="3" height="12" rx="1.5" fill="white"/>
                 <rect x="5.5" y="10" width="13" height="3.5" rx="1.5" fill="white"/>
               </svg>
-              <span className="font-semibold text-base tracking-tight" style={{ color: "#1E293B" }}>
+              <span className="font-semibold text-base tracking-tight text-foreground">
                 Heiyo
               </span>
             </Link>
@@ -105,20 +103,20 @@ export default async function DashboardLayout({
 
           <div className="flex items-center gap-6">
             {/* Nav links */}
-            <div className="flex items-center gap-5 text-sm" style={{ color: "#64748B" }}>
-              <Link href="/dashboard" className="transition-colors hover:text-slate-900">
+            <div className="flex items-center gap-5 text-sm text-muted-foreground">
+              <Link href="/dashboard" className="transition-colors hover:text-foreground">
                 Dashboard
               </Link>
-              <Link href="/dashboard/tickets" className="transition-colors hover:text-slate-900">
+              <Link href="/dashboard/tickets" className="transition-colors hover:text-foreground">
                 Tickets
               </Link>
-              <Link href="/dashboard/customers" className="transition-colors hover:text-slate-900">
+              <Link href="/dashboard/customers" className="transition-colors hover:text-foreground">
                 Customers
               </Link>
-              <Link href="/dashboard/reports" className="transition-colors hover:text-slate-900">
+              <Link href="/dashboard/reports" className="transition-colors hover:text-foreground">
                 Reports
               </Link>
-              <Link href="/dashboard/settings" className="transition-colors hover:text-slate-900">
+              <Link href="/dashboard/settings" className="transition-colors hover:text-foreground">
                 Settings
               </Link>
             </div>
@@ -129,6 +127,8 @@ export default async function DashboardLayout({
                 currentUserRole={active.role}
               />
             )}
+
+            <ThemeToggle />
 
             <NavProfileButton
               name={user.name}
