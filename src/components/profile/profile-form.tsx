@@ -28,7 +28,7 @@ const ROLE_COLORS: Record<Role, string> = {
   OWNER: "text-violet-600 bg-violet-50 border-violet-200",
   ADMIN: "text-blue-600 bg-blue-50 border-blue-200",
   AGENT: "text-emerald-600 bg-emerald-50 border-emerald-200",
-  VIEWER: "text-gray-600 bg-gray-50 border-gray-200",
+  VIEWER: "text-muted-foreground bg-muted border-border",
 }
 
 export function ProfileForm({

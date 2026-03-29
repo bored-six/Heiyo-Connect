@@ -16,10 +16,10 @@ export default async function JoinPage({
   const tenant = await prisma.tenant.findUnique({ where: { slug } })
   if (!tenant) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="bg-white rounded-xl shadow-sm border p-8 w-full max-w-md text-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="bg-card rounded-xl shadow-sm border p-8 w-full max-w-md text-center">
           <h1 className="text-xl font-semibold tracking-tight mb-2">Invalid invite link</h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             This link is invalid or has expired. Ask your team for a new one.
           </p>
         </div>
@@ -51,17 +51,17 @@ export default async function JoinPage({
     const pendingRequest = dbUser.joinRequests.find((r) => r.status === "PENDING")
     if (pendingRequest) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="bg-white rounded-xl shadow-sm border p-8 w-full max-w-md text-center space-y-4">
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="bg-card rounded-xl shadow-sm border p-8 w-full max-w-md text-center space-y-4">
             <div className="flex justify-center">
               <div className="size-12 rounded-full bg-amber-100 flex items-center justify-center">
                 <Clock className="size-5 text-amber-600" />
               </div>
             </div>
             <h1 className="text-xl font-semibold tracking-tight">Request pending</h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Your request to join{" "}
-              <span className="font-medium text-gray-700">{tenant.name}</span> is awaiting
+              <span className="font-medium text-foreground">{tenant.name}</span> is awaiting
               approval. You&apos;ll be notified once an owner approves it.
             </p>
             <Link href="/dashboard" className="inline-block text-sm text-primary hover:underline">
@@ -76,12 +76,12 @@ export default async function JoinPage({
     const denied = dbUser.joinRequests.find((r) => r.status === "DENIED")
     if (denied) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="bg-white rounded-xl shadow-sm border p-8 w-full max-w-md text-center space-y-4">
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="bg-card rounded-xl shadow-sm border p-8 w-full max-w-md text-center space-y-4">
             <h1 className="text-xl font-semibold tracking-tight">Request declined</h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Your request to join{" "}
-              <span className="font-medium text-gray-700">{tenant.name}</span> was declined.
+              <span className="font-medium text-foreground">{tenant.name}</span> was declined.
               Contact the workspace owner if you think this was a mistake.
             </p>
           </div>
@@ -91,13 +91,13 @@ export default async function JoinPage({
 
     // Show request form
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="bg-white rounded-xl shadow-sm border p-8 w-full max-w-md space-y-6">
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="bg-card rounded-xl shadow-sm border p-8 w-full max-w-md space-y-6">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight mb-1">
               Join {tenant.name}
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Send a request to join this workspace. An owner or admin will approve it and
               assign your role.
             </p>
@@ -112,11 +112,11 @@ export default async function JoinPage({
   const joinParam = `?join=${encodeURIComponent(slug)}`
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white rounded-xl shadow-sm border p-8 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="bg-card rounded-xl shadow-sm border p-8 w-full max-w-md">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight mb-1">Join {tenant.name}</h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             Sign in or create an account to request access to this workspace.
           </p>
         </div>
@@ -124,13 +124,13 @@ export default async function JoinPage({
         <div className="space-y-3">
           <Link
             href={`/sign-up${joinParam}`}
-            className="flex w-full items-center justify-center rounded-md bg-black text-white text-sm font-medium py-2 hover:bg-gray-800 transition-colors"
+            className="flex w-full items-center justify-center rounded-md bg-foreground text-white text-sm font-medium py-2 hover:bg-foreground/90 transition-colors"
           >
             Create an account
           </Link>
           <Link
             href={`/sign-in${joinParam}`}
-            className="flex w-full items-center justify-center rounded-md border border-gray-300 text-sm font-medium py-2 hover:bg-gray-50 transition-colors"
+            className="flex w-full items-center justify-center rounded-md border border-border text-sm font-medium py-2 hover:bg-background transition-colors"
           >
             Sign in to an existing account
           </Link>

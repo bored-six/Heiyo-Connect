@@ -29,29 +29,23 @@ export default async function PublicPortalPage({ params }: Props) {
 
   return (
     <main
-      className="min-h-screen flex flex-col"
-      style={{ backgroundColor: "#09090f", color: "#f1f5f9" }}
+      className="min-h-screen flex flex-col bg-background text-foreground"
     >
       {/* ── Header ───────────────────────────────────────────────── */}
-      <header style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+      <header className="border-b border-border">
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <SparklesIcon className="h-4 w-4" style={{ color: "#818cf8" }} />
-            <span className="font-semibold text-sm tracking-tight text-white">
+            <SparklesIcon className="h-4 w-4 text-primary" />
+            <span className="font-semibold text-sm tracking-tight text-foreground">
               {tenant.name}
             </span>
             <span
-              className="text-xs px-2 py-0.5 rounded-full"
-              style={{
-                backgroundColor: "rgba(99,102,241,0.1)",
-                color: "#a5b4fc",
-                border: "1px solid rgba(99,102,241,0.2)",
-              }}
+              className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20"
             >
               Support
             </span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs" style={{ color: "#64748b" }}>
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span
               className="h-1.5 w-1.5 rounded-full bg-emerald-400"
             />
@@ -66,23 +60,17 @@ export default async function PublicPortalPage({ params }: Props) {
           {/* Page title */}
           <div className="mb-8">
             <div
-              className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs mb-4"
-              style={{
-                border: "1px solid rgba(99,102,241,0.3)",
-                backgroundColor: "rgba(99,102,241,0.08)",
-                color: "#a5b4fc",
-              }}
+              className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs mb-4 border border-primary/30 bg-primary/10 text-primary"
             >
               <MessageSquareIcon className="h-3 w-3" />
               New support ticket
             </div>
             <h1
-              className="text-2xl font-bold tracking-tight mb-2"
-              style={{ color: "#f8fafc" }}
+              className="text-2xl font-bold tracking-tight mb-2 text-foreground"
             >
               How can we help?
             </h1>
-            <p className="text-sm" style={{ color: "#94a3b8" }}>
+            <p className="text-sm text-muted-foreground">
               Fill out the form below and the {tenant.name} support team will
               get back to you. Our AI will triage your request to prioritise
               response time.
@@ -91,22 +79,17 @@ export default async function PublicPortalPage({ params }: Props) {
 
           {/* Form */}
           <div
-            className="rounded-xl p-6"
-            style={{
-              border: "1px solid rgba(255,255,255,0.08)",
-              backgroundColor: "rgba(255,255,255,0.02)",
-            }}
+            className="rounded-xl p-6 border border-border bg-card/50"
           >
             <PublicTicketForm slug={slug} tenantName={tenant.name} />
           </div>
 
           {/* Footer */}
           <p
-            className="text-center text-xs mt-6"
-            style={{ color: "#334155" }}
+            className="text-center text-xs mt-6 text-muted-foreground"
           >
             Powered by{" "}
-            <span style={{ color: "#475569" }}>Heiyo Connect</span>
+            <span className="text-foreground/70">Heiyo Connect</span>
           </p>
         </div>
       </div>

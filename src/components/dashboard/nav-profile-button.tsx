@@ -43,10 +43,9 @@ export function NavProfileButton({
 
       {open && (
         <div
-          className="absolute right-0 mt-2 w-52 rounded-lg border bg-white shadow-lg py-1 z-50"
-          style={{ borderColor: "#E2E8F0" }}
+          className="absolute right-0 mt-2 w-52 rounded-lg border border-border bg-popover shadow-lg py-1 z-50"
         >
-          <div className="px-3 py-2 border-b" style={{ borderColor: "#E2E8F0" }}>
+          <div className="px-3 py-2 border-b border-border">
             <p className="text-sm font-medium truncate">{name ?? email}</p>
             {name && <p className="text-xs text-muted-foreground truncate">{email}</p>}
           </div>
@@ -54,7 +53,7 @@ export function NavProfileButton({
           <Link
             href="/dashboard/profile"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
           >
             <UserCircle className="size-4 text-muted-foreground" />
             My Profile

@@ -50,7 +50,7 @@ const ROLES = [
   { key: "owner", label: "Owner", Icon: Crown, color: "text-violet-600" },
   { key: "admin", label: "Admin", Icon: ShieldCheck, color: "text-blue-600" },
   { key: "agent", label: "Agent", Icon: User, color: "text-emerald-600" },
-  { key: "viewer", label: "Viewer", Icon: Eye, color: "text-gray-500" },
+  { key: "viewer", label: "Viewer", Icon: Eye, color: "text-muted-foreground" },
 ] as const
 
 const ROLE_DESCRIPTIONS: Record<string, string> = {
@@ -120,7 +120,7 @@ export function PermissionsTab() {
                         {item[role] ? (
                           <Check className="size-4 text-emerald-500 mx-auto" />
                         ) : (
-                          <X className="size-4 text-gray-300 mx-auto" />
+                          <X className="size-4 text-muted-foreground/30 mx-auto" />
                         )}
                       </td>
                     ))}

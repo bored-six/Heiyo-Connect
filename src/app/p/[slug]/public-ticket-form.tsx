@@ -61,12 +61,12 @@ export function PublicTicketForm({
           className="rounded-full p-4 mb-5"
           style={{ backgroundColor: "rgba(52,211,153,0.12)", border: "1px solid rgba(52,211,153,0.25)" }}
         >
-          <CheckCircleIcon className="h-10 w-10" style={{ color: "#34d399" }} />
+          <CheckCircleIcon className="h-10 w-10 text-emerald-400" />
         </div>
-        <h2 className="text-xl font-semibold mb-2" style={{ color: "#f1f5f9" }}>
+        <h2 className="text-xl font-semibold mb-2 text-foreground">
           Ticket submitted!
         </h2>
-        <p className="text-sm max-w-sm" style={{ color: "#94a3b8" }}>
+        <p className="text-sm max-w-sm text-muted-foreground">
           The {tenantName} support team has been notified. Our AI is triaging
           your request now — you'll hear back soon.
         </p>
@@ -75,8 +75,7 @@ export function PublicTicketForm({
             setState({ type: "idle" })
             setFields({ name: "", email: "", subject: "", description: "" })
           }}
-          className="mt-6 text-sm underline underline-offset-2 transition-colors"
-          style={{ color: "#818cf8" }}
+          className="mt-6 text-sm underline underline-offset-2 transition-colors text-primary"
         >
           Submit another ticket
         </button>
@@ -104,8 +103,7 @@ export function PublicTicketForm({
         <div>
           <label
             htmlFor="name"
-            className="block text-xs font-medium mb-1.5"
-            style={{ color: "#94a3b8" }}
+            className="block text-xs font-medium mb-1.5 text-muted-foreground"
           >
             Your name
           </label>
@@ -118,19 +116,13 @@ export function PublicTicketForm({
             onChange={handleChange}
             placeholder="Jane Smith"
             disabled={isPending}
-            className="w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-all disabled:opacity-50"
-            style={{
-              backgroundColor: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              color: "#f1f5f9",
-            }}
+            className="w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-all disabled:opacity-50 bg-input/30 border border-border text-foreground"
           />
         </div>
         <div>
           <label
             htmlFor="email"
-            className="block text-xs font-medium mb-1.5"
-            style={{ color: "#94a3b8" }}
+            className="block text-xs font-medium mb-1.5 text-muted-foreground"
           >
             Email address
           </label>
@@ -143,12 +135,7 @@ export function PublicTicketForm({
             onChange={handleChange}
             placeholder="jane@company.io"
             disabled={isPending}
-            className="w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-all disabled:opacity-50"
-            style={{
-              backgroundColor: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              color: "#f1f5f9",
-            }}
+            className="w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-all disabled:opacity-50 bg-input/30 border border-border text-foreground"
           />
         </div>
       </div>
@@ -156,8 +143,7 @@ export function PublicTicketForm({
       <div>
         <label
           htmlFor="subject"
-          className="block text-xs font-medium mb-1.5"
-          style={{ color: "#94a3b8" }}
+          className="block text-xs font-medium mb-1.5 text-muted-foreground"
         >
           Subject
         </label>
@@ -170,20 +156,14 @@ export function PublicTicketForm({
           onChange={handleChange}
           placeholder="Brief summary of your issue"
           disabled={isPending}
-          className="w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-all disabled:opacity-50"
-          style={{
-            backgroundColor: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            color: "#f1f5f9",
-          }}
+          className="w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-all disabled:opacity-50 bg-input/30 border border-border text-foreground"
         />
       </div>
 
       <div>
         <label
           htmlFor="description"
-          className="block text-xs font-medium mb-1.5"
-          style={{ color: "#94a3b8" }}
+          className="block text-xs font-medium mb-1.5 text-muted-foreground"
         >
           Describe your issue
         </label>
@@ -196,12 +176,7 @@ export function PublicTicketForm({
           placeholder="Please include any relevant details, steps to reproduce, or error messages..."
           rows={5}
           disabled={isPending}
-          className="w-full rounded-lg px-3 py-2.5 text-sm outline-none resize-none transition-all disabled:opacity-50"
-          style={{
-            backgroundColor: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            color: "#f1f5f9",
-          }}
+          className="w-full rounded-lg px-3 py-2.5 text-sm outline-none resize-none transition-all disabled:opacity-50 bg-input/30 border border-border text-foreground"
         />
       </div>
 
@@ -231,8 +206,8 @@ export function PublicTicketForm({
       </button>
 
       {/* AI disclosure */}
-      <p className="text-center text-xs" style={{ color: "#475569" }}>
-        <SparklesIcon className="inline h-3 w-3 mr-1 -mt-0.5" style={{ color: "#6366f1" }} />
+      <p className="text-center text-xs text-muted-foreground">
+        <SparklesIcon className="inline h-3 w-3 mr-1 -mt-0.5 text-primary" />
         This ticket will be triaged by AI to prioritise your request.
       </p>
     </form>

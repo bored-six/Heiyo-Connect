@@ -24,8 +24,8 @@ export default function DashboardError({
           </div>
         </div>
         <div className="space-y-2">
-          <h2 className="text-lg font-semibold text-slate-900">Failed to load this page</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-lg font-semibold text-foreground">Failed to load this page</h2>
+          <p className="text-sm text-muted-foreground">
             Something went wrong while loading this section. Your data is safe.
           </p>
         </div>
@@ -39,7 +39,7 @@ export default function DashboardError({
           </button>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
           >
             <HomeIcon className="h-3.5 w-3.5" />
             Dashboard

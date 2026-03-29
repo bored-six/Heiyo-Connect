@@ -71,13 +71,13 @@ export function DonutCard({
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-xs font-bold text-slate-500 tabular-nums">
+            <span className="text-xs font-bold text-muted-foreground tabular-nums">
               {Math.round(progress)}%
             </span>
           </div>
         </div>
         <div>
-          <p className="text-3xl font-bold text-slate-500 tabular-nums mt-1">{resolved}</p>
+          <p className="text-3xl font-bold text-muted-foreground tabular-nums mt-1">{resolved}</p>
           <p className="text-xs text-muted-foreground mt-0.5">of {total} tickets</p>
         </div>
       </div>

@@ -90,7 +90,7 @@ function RequestCard({
     <div className="rounded-lg border bg-muted/20 p-4 space-y-4">
       {/* Requester info */}
       <div className="flex items-start gap-3">
-        <div className="size-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold shrink-0 text-gray-600 select-none">
+        <div className="size-10 rounded-full bg-muted flex items-center justify-center text-sm font-semibold shrink-0 text-muted-foreground select-none">
           {getInitials(request.user.name, request.user.email)}
         </div>
         <div className="min-w-0 flex-1">
@@ -107,7 +107,7 @@ function RequestCard({
             <p className="text-xs text-muted-foreground">{request.user.email}</p>
           )}
           {request.message && (
-            <p className="text-sm text-gray-600 mt-1.5 italic">
+            <p className="text-sm text-muted-foreground mt-1.5 italic">
               &ldquo;{request.message}&rdquo;
             </p>
           )}

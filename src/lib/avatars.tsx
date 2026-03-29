@@ -255,7 +255,7 @@ export function AvatarDisplay({
 
   return (
     <div
-      className={`rounded-full overflow-hidden bg-gray-200 flex items-center justify-center font-bold text-gray-600 shrink-0 select-none ${className}`}
+      className={`rounded-full overflow-hidden bg-muted flex items-center justify-center font-bold text-muted-foreground shrink-0 select-none ${className}`}
       style={{ width: size, height: size, fontSize: size * 0.3 }}
     >
       {initials}

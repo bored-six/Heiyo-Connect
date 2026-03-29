@@ -23,8 +23,8 @@ export default function GlobalError({
           </div>
         </div>
         <div className="space-y-2">
-          <h1 className="text-xl font-semibold text-slate-900">Something went wrong</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-xl font-semibold text-foreground">Something went wrong</h1>
+          <p className="text-sm text-muted-foreground">
             An unexpected error occurred. If this keeps happening, please refresh the page.
           </p>
         </div>

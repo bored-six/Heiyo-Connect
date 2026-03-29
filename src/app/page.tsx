@@ -15,24 +15,20 @@ export default async function Home() {
   if (userId) redirect("/dashboard")
 
   return (
-    <main
-      className="min-h-screen"
-      style={{ backgroundColor: "#F8FAFC", color: "#1E293B" }}
-    >
+    <main className="min-h-screen bg-background text-foreground">
       {/* ── Nav ─────────────────────────────────────────────────────── */}
-      <nav style={{ borderBottom: "1px solid #E2E8F0" }}>
+      <nav className="border-b border-border">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <SparklesIcon className="h-4 w-4" style={{ color: "#6366F1" }} />
-            <span className="font-semibold text-base tracking-tight" style={{ color: "#1E293B" }}>
+            <SparklesIcon className="h-4 w-4 text-primary" />
+            <span className="font-semibold text-base tracking-tight text-foreground">
               Heiyo Connect
             </span>
           </div>
           <div className="flex items-center gap-3">
             <Link
               href="/sign-in"
-              className="text-sm transition-colors"
-              style={{ color: "#64748B" }}
+              className="text-sm transition-colors text-muted-foreground hover:text-foreground"
             >
               Sign in
             </Link>
@@ -55,20 +51,14 @@ export default async function Home() {
       <section className="max-w-6xl mx-auto px-6 pt-20 pb-8 text-center">
         {/* Tech badge */}
         <div
-          className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs mb-6"
-          style={{
-            border: "1px solid #C7D2FE",
-            backgroundColor: "#EEF2FF",
-            color: "#6366F1",
-          }}
+          className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs mb-6 border border-primary/30 bg-accent text-primary"
         >
           <BotIcon className="h-3.5 w-3.5" />
           Powered by Gemini &amp; Real-time Pusher Channels
         </div>
 
         <h1
-          className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight mb-4"
-          style={{ color: "#1E293B" }}
+          className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight mb-4 text-foreground"
         >
           Support at the{" "}
           <span
@@ -85,15 +75,13 @@ export default async function Home() {
         </h1>
 
         <p
-          className="text-lg max-w-xl mx-auto mb-3 font-medium tracking-wide"
-          style={{ color: "#475569" }}
+          className="text-lg max-w-xl mx-auto mb-3 font-medium tracking-wide text-muted-foreground"
         >
           Multi-tenant · Real-time · Orchestrated.
         </p>
 
         <p
-          className="text-base max-w-xl mx-auto mb-10 leading-relaxed"
-          style={{ color: "#64748B" }}
+          className="text-base max-w-xl mx-auto mb-10 leading-relaxed text-muted-foreground"
         >
           Heiyo Connect gives your team AI-drafted replies, auto-prioritised
           queues, and live Pusher toasts — so customers get faster answers and
@@ -115,18 +103,13 @@ export default async function Home() {
           </a>
           <Link
             href="/sign-up"
-            className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium transition-colors"
-            style={{
-              border: "1px solid #E2E8F0",
-              color: "#475569",
-              backgroundColor: "#FFFFFF",
-            }}
+            className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium transition-colors border border-border text-muted-foreground bg-card hover:bg-muted"
           >
             Create free account
           </Link>
         </div>
 
-        <p className="text-xs mb-12" style={{ color: "#94A3B8" }}>
+        <p className="text-xs mb-12 text-muted-foreground">
           No account required · Pre-loaded with real-looking data · Read-only access
         </p>
 
@@ -143,27 +126,17 @@ export default async function Home() {
 
           {/* Mockup shell */}
           <div
-            className="relative rounded-xl overflow-hidden text-left"
-            style={{
-              border: "1px solid #E2E8F0",
-              backgroundColor: "#FFFFFF",
-              boxShadow: "0 4px 24px rgba(99,102,241,0.06), 0 1px 3px rgba(0,0,0,0.06)",
-            }}
+            className="relative rounded-xl overflow-hidden text-left border border-border bg-card shadow-lg"
           >
             {/* Mockup top bar */}
             <div
-              className="flex items-center gap-2 px-4 py-3"
-              style={{ borderBottom: "1px solid #E2E8F0", backgroundColor: "#F8FAFC" }}
+              className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted"
             >
               <div className="h-2.5 w-2.5 rounded-full bg-red-400 opacity-70" />
               <div className="h-2.5 w-2.5 rounded-full bg-yellow-400 opacity-70" />
               <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 opacity-70" />
               <div
-                className="ml-3 flex-1 rounded text-xs px-3 py-0.5 max-w-64"
-                style={{
-                  backgroundColor: "#F1F5F9",
-                  color: "#64748B",
-                }}
+                className="ml-3 flex-1 rounded text-xs px-3 py-0.5 max-w-64 bg-secondary text-muted-foreground"
               >
                 heiyo.app/dashboard
               </div>
@@ -175,12 +148,11 @@ export default async function Home() {
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <div
-                    className="text-sm font-semibold mb-0.5"
-                    style={{ color: "#1E293B" }}
+                    className="text-sm font-semibold mb-0.5 text-foreground"
                   >
                     Acme Corp — Support Dashboard
                   </div>
-                  <div className="text-xs" style={{ color: "#94A3B8" }}>
+                  <div className="text-xs text-muted-foreground">
                     Welcome back, Alex
                   </div>
                 </div>
@@ -208,13 +180,9 @@ export default async function Home() {
                 ].map((s) => (
                   <div
                     key={s.label}
-                    className="rounded-lg p-3"
-                    style={{
-                      backgroundColor: "#F8FAFC",
-                      border: "1px solid #E2E8F0",
-                    }}
+                    className="rounded-lg p-3 bg-muted border border-border"
                   >
-                    <div className="text-xs mb-1" style={{ color: "#94A3B8" }}>
+                    <div className="text-xs mb-1 text-muted-foreground">
                       {s.label}
                     </div>
                     <div
@@ -229,18 +197,12 @@ export default async function Home() {
 
               {/* Ticket rows */}
               <div
-                className="rounded-lg overflow-hidden"
-                style={{ border: "1px solid #E2E8F0" }}
+                className="rounded-lg overflow-hidden border border-border"
               >
                 {/* Table header */}
                 <div
-                  className="grid text-xs px-4 py-2"
-                  style={{
-                    gridTemplateColumns: "1fr 140px 90px 90px",
-                    borderBottom: "1px solid #E2E8F0",
-                    color: "#94A3B8",
-                    backgroundColor: "#F8FAFC",
-                  }}
+                  className="grid text-xs px-4 py-2 border-b border-border text-muted-foreground bg-muted"
+                  style={{ gridTemplateColumns: "1fr 140px 90px 90px" }}
                 >
                   <span>Subject</span>
                   <span>Customer</span>
@@ -298,13 +260,10 @@ export default async function Home() {
                       borderBottom: i < 3 ? "1px solid #F1F5F9" : "none",
                     }}
                   >
-                    <span
-                      className="truncate pr-4 font-medium"
-                      style={{ color: "#1E293B" }}
-                    >
+                    <span className="truncate pr-4 font-medium text-foreground">
                       {row.subject}
                     </span>
-                    <span style={{ color: "#64748B" }}>{row.customer}</span>
+                    <span className="text-muted-foreground">{row.customer}</span>
                     <span>
                       <span
                         className="rounded px-1.5 py-0.5 text-xs font-medium"
@@ -335,26 +294,19 @@ export default async function Home() {
 
               {/* Pusher toast preview */}
               <div
-                className="mt-4 flex items-start gap-3 rounded-lg px-4 py-3 text-xs"
-                style={{
-                  backgroundColor: "#EEF2FF",
-                  border: "1px solid #C7D2FE",
-                }}
+                className="mt-4 flex items-start gap-3 rounded-lg px-4 py-3 text-xs bg-accent border border-primary/30"
               >
-                <ZapIcon
-                  className="h-3.5 w-3.5 shrink-0 mt-0.5"
-                  style={{ color: "#6366F1" }}
-                />
+                <ZapIcon className="h-3.5 w-3.5 shrink-0 mt-0.5 text-primary" />
                 <div>
-                  <span style={{ color: "#4338CA" }} className="font-semibold">
+                  <span className="font-semibold text-primary">
                     New ticket · AI priority:{" "}
                   </span>
-                  <span style={{ color: "#DC2626" }} className="font-semibold">
+                  <span className="font-semibold text-red-500">
                     CRITICAL
                   </span>
-                  <span style={{ color: "#64748B" }}>
+                  <span className="text-muted-foreground">
                     {" "}
-                    · "Production payment gateway down" — just now
+                    · &quot;Production payment gateway down&quot; — just now
                   </span>
                 </div>
               </div>
@@ -366,8 +318,7 @@ export default async function Home() {
       {/* ── Tech Stack Marquee ───────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-6 py-10">
         <p
-          className="text-center text-xs uppercase tracking-widest mb-6"
-          style={{ color: "#94A3B8" }}
+          className="text-center text-xs uppercase tracking-widest mb-6 text-muted-foreground"
         >
           Built with production-grade tooling
         </p>
@@ -384,8 +335,7 @@ export default async function Home() {
           ].map((t) => (
             <div
               key={t.label}
-              className="flex items-center gap-2 text-sm font-medium"
-              style={{ color: "#64748B" }}
+              className="flex items-center gap-2 text-sm font-medium text-muted-foreground"
             >
               <span
                 className="h-2 w-2 rounded-full shrink-0"
@@ -431,11 +381,7 @@ export default async function Home() {
           ].map((f) => (
             <div
               key={f.title}
-              className="rounded-xl p-5"
-              style={{
-                border: "1px solid #E2E8F0",
-                backgroundColor: "#FFFFFF",
-              }}
+              className="rounded-xl p-5 border border-border bg-card"
             >
               <div
                 className="inline-flex rounded-lg p-2 mb-3"
@@ -443,16 +389,10 @@ export default async function Home() {
               >
                 {f.icon}
               </div>
-              <h3
-                className="font-semibold mb-1.5"
-                style={{ color: "#1E293B" }}
-              >
+              <h3 className="font-semibold mb-1.5 text-foreground">
                 {f.title}
               </h3>
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: "#64748B" }}
-              >
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 {f.body}
               </p>
             </div>
@@ -461,30 +401,19 @@ export default async function Home() {
 
         {/* ── Get Started CTA strip ───────────────────────────────────── */}
         <div
-          className="rounded-xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6"
-          style={{
-            background: "#EEF2FF",
-            border: "1px solid #C7D2FE",
-          }}
+          className="rounded-xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6 bg-accent border border-primary/30"
         >
           <div>
             <div
-              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium mb-2"
-              style={{
-                backgroundColor: "#E0E7FF",
-                color: "#4338CA",
-              }}
+              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium mb-2 bg-primary/15 text-primary"
             >
               <ShieldIcon className="h-3 w-3" />
               Multi-tenant · Row-level isolation · SOC2-ready architecture
             </div>
-            <h3
-              className="text-xl font-semibold mb-1"
-              style={{ color: "#1E293B" }}
-            >
+            <h3 className="text-xl font-semibold mb-1 text-foreground">
               Ready to see it in action?
             </h3>
-            <p className="text-sm" style={{ color: "#64748B" }}>
+            <p className="text-sm text-muted-foreground">
               Explore a fully populated support dashboard — no sign-up needed.
             </p>
           </div>
@@ -504,8 +433,7 @@ export default async function Home() {
 
         {/* ── Footer ─────────────────────────────────────────────────── */}
         <p
-          className="text-center text-xs mt-10"
-          style={{ color: "#94A3B8" }}
+          className="text-center text-xs mt-10 text-muted-foreground"
         >
           Built with Next.js 16 · React 19 · Clerk · Prisma · Pusher Channels · Gemini 2.0
         </p>

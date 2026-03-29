@@ -59,3 +59,6 @@ next-env.d.ts
 
 # Salesforce DX (auto-created by sf CLI, not part of this project)
 .sfdx/
+sambanner.png
+sambanner.svg
+.gitignore

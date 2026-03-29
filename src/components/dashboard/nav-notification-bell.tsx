@@ -88,7 +88,7 @@ function RequestRow({
     <div className="p-3 space-y-2.5 border-b last:border-b-0">
       {/* User info */}
       <div className="flex items-start gap-2.5">
-        <div className="size-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-600 shrink-0 select-none">
+        <div className="size-8 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0 select-none">
           {getInitials(request.user.name, request.user.email)}
         </div>
         <div className="min-w-0 flex-1">
@@ -100,7 +100,7 @@ function RequestRow({
           )}
           <p className="text-xs text-muted-foreground">{timeAgo(request.createdAt)}</p>
           {request.message && (
-            <p className="text-xs text-gray-500 mt-1 italic truncate">
+            <p className="text-xs text-muted-foreground mt-1 italic truncate">
               &ldquo;{request.message}&rdquo;
             </p>
           )}
@@ -173,10 +173,10 @@ export function NavNotificationBell({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="relative flex items-center justify-center size-8 rounded-md hover:bg-slate-100 transition-colors"
+        className="relative flex items-center justify-center size-8 rounded-md hover:bg-muted transition-colors"
         aria-label={`Notifications${count > 0 ? ` (${count} pending)` : ""}`}
       >
-        <Bell className="size-4 text-slate-500" />
+        <Bell className="size-4 text-muted-foreground" />
         {count > 0 && (
           <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center size-4 rounded-full bg-red-500 text-white text-[9px] font-bold leading-none">
             {count > 9 ? "9+" : count}
@@ -185,7 +185,7 @@ export function NavNotificationBell({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 rounded-lg border bg-white shadow-lg z-50 overflow-hidden">
+        <div className="absolute right-0 top-full mt-2 w-80 rounded-lg border border-border bg-popover shadow-lg z-50 overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2.5 border-b bg-muted/30">
             <p className="text-sm font-semibold">Join Requests</p>
             {count > 0 && (

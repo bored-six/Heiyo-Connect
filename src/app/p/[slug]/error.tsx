@@ -16,8 +16,7 @@ export default function PublicPortalError({
 
   return (
     <main
-      className="min-h-screen flex items-center justify-center px-6"
-      style={{ backgroundColor: "#09090f", color: "#f1f5f9" }}
+      className="min-h-screen flex items-center justify-center px-6 bg-background text-foreground"
     >
       <div className="max-w-sm w-full text-center space-y-6">
         <div className="flex justify-center">
@@ -28,14 +27,14 @@ export default function PublicPortalError({
               border: "1px solid rgba(248,113,113,0.25)",
             }}
           >
-            <AlertCircleIcon className="h-8 w-8" style={{ color: "#f87171" }} />
+            <AlertCircleIcon className="h-8 w-8 text-red-400" />
           </div>
         </div>
         <div className="space-y-2">
-          <h2 className="text-lg font-semibold" style={{ color: "#f8fafc" }}>
+          <h2 className="text-lg font-semibold text-foreground">
             Unable to load support portal
           </h2>
-          <p className="text-sm" style={{ color: "#94a3b8" }}>
+          <p className="text-sm text-muted-foreground">
             Something went wrong. Please try refreshing the page.
           </p>
         </div>
