@@ -4,6 +4,7 @@ import { useReducer, useState, useMemo } from "react"
 import { DEMO_TICKETS, DEMO_CUSTOMERS, type DemoTicket, type DemoCustomer } from "@/lib/demo-data"
 import type { TicketStatus, Priority, Channel } from "@/lib/types"
 import { X, Plus, Search, ChevronDown } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -114,44 +115,44 @@ function CreateTicketDialog({ open, onClose, onCreate }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-xl shadow-xl border w-full max-w-lg mx-4 p-6">
+      <div className="relative bg-popover rounded-xl shadow-xl border border-border w-full max-w-lg mx-4 p-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-semibold">New Ticket</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Customer</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Customer</label>
             <select value={customerIdx} onChange={(e) => setCustomerIdx(Number(e.target.value))}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50">
               {DEMO_CUSTOMERS.map((c, i) => <option key={c.id} value={i}>{c.name} — {c.company}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Subject</label>
             <input value={subject} onChange={(e) => setSubject(e.target.value)} required
               placeholder="Brief description of the issue"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Description</label>
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} required rows={3}
               placeholder="Full details of the issue…"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" />
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 resize-none" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Priority</label>
               <select value={priority} onChange={(e) => setPriority(e.target.value as Priority)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50">
                 <option value="LOW">Low</option><option value="MEDIUM">Medium</option>
                 <option value="HIGH">High</option><option value="CRITICAL">Critical</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Channel</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Channel</label>
               <select value={channel} onChange={(e) => setChannel(e.target.value as Channel)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50">
                 <option value="EMAIL">Email</option><option value="CHAT">Chat</option>
                 <option value="PHONE">Phone</option><option value="SOCIAL">Social</option><option value="API">API</option>
               </select>
@@ -159,7 +160,7 @@ function CreateTicketDialog({ open, onClose, onCreate }: {
           </div>
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose}
-              className="flex-1 rounded-md border px-4 py-2 text-sm font-medium hover:bg-gray-50 transition-colors">Cancel</button>
+              className="flex-1 rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors">Cancel</button>
             <button type="submit"
               className="flex-1 rounded-md bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700 transition-colors">Create Ticket</button>
           </div>
@@ -180,13 +181,13 @@ function TicketDrawer({ ticket, onClose, onStatusChange }: {
   return (
     <div className="fixed inset-0 z-40 flex justify-end">
       <div className="absolute inset-0 bg-black/20" onClick={onClose} />
-      <div className="relative bg-white w-full max-w-xl shadow-2xl border-l overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-start justify-between gap-4">
+      <div className="relative bg-popover w-full max-w-xl shadow-2xl border-l border-border overflow-y-auto">
+        <div className="sticky top-0 bg-popover border-b border-border px-6 py-4 flex items-start justify-between gap-4">
           <div>
             <p className="text-xs text-muted-foreground font-mono mb-1">#{String(ticket.ticketNumber).padStart(3, "0")}</p>
             <h2 className="text-base font-semibold leading-snug">{ticket.subject}</h2>
           </div>
-          <button onClick={onClose} className="shrink-0 text-gray-400 hover:text-gray-600 mt-0.5"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="shrink-0 text-muted-foreground hover:text-foreground mt-0.5"><X className="h-5 w-5" /></button>
         </div>
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-2 gap-3 text-sm">
@@ -220,12 +221,12 @@ function TicketDrawer({ ticket, onClose, onStatusChange }: {
           </div>
           <div>
             <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wide">Description</p>
-            <p className="text-sm leading-relaxed text-slate-700">{ticket.description}</p>
+            <p className="text-sm leading-relaxed text-foreground/80">{ticket.description}</p>
           </div>
           {ticket.aiSuggestedResponse && (
-            <div className="rounded-lg border border-indigo-100 bg-indigo-50/60 p-4">
-              <p className="text-xs font-semibold text-indigo-700 uppercase tracking-wide mb-2">AI Suggested Response</p>
-              <p className="text-sm text-slate-700 leading-relaxed">{ticket.aiSuggestedResponse}</p>
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+              <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">AI Suggested Response</p>
+              <p className="text-sm text-foreground/80 leading-relaxed">{ticket.aiSuggestedResponse}</p>
             </div>
           )}
           {ticket.tags.length > 0 && (
@@ -237,7 +238,7 @@ function TicketDrawer({ ticket, onClose, onStatusChange }: {
           )}
           <div className="flex gap-2 pt-2">
             <select value={ticket.status} onChange={(e) => onStatusChange(ticket.id, e.target.value as TicketStatus)}
-              className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50">
               <option value="OPEN">Open</option>
               <option value="IN_PROGRESS">In Progress</option>
               <option value="WAITING_ON_CUSTOMER">Waiting on Customer</option>
@@ -382,7 +383,7 @@ function TicketTable({ tickets, onSelect, onAssign, onResolve, onStatusChange }:
                         className="appearance-none rounded-full pl-2.5 pr-6 py-0.5 text-xs font-medium border-0 cursor-pointer outline-none"
                       >
                         {(Object.keys(STATUS_LABELS) as TicketStatus[]).map((s) => (
-                          <option key={s} value={s} className="bg-white text-gray-900">
+                          <option key={s} value={s} className="bg-popover text-foreground">
                             {STATUS_LABELS[s]}
                           </option>
                         ))}
@@ -404,7 +405,7 @@ function TicketTable({ tickets, onSelect, onAssign, onResolve, onStatusChange }:
                         {ticket.assignedAgent ? "Assigned" : "Assign to Me"}
                       </button>
                       <button onClick={() => onResolve(ticket.id)} disabled={isResolved}
-                        className="rounded px-2 py-1 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                        className="rounded px-2 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                         {isResolved ? "Resolved" : "Resolve"}
                       </button>
                     </div>
@@ -676,7 +677,7 @@ export function DemoShell() {
       />
 
       {/* Nav */}
-      <nav style={{ borderBottom: "1px solid #E2E8F0", backgroundColor: "#F8FAFC" }}>
+      <nav className="border-b border-border bg-background">
         <div className="px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2.5">
@@ -686,19 +687,19 @@ export function DemoShell() {
                 <rect x="15.5" y="6" width="3" height="12" rx="1.5" fill="white"/>
                 <rect x="5.5" y="10" width="13" height="3.5" rx="1.5" fill="white"/>
               </svg>
-              <span className="font-semibold text-base tracking-tight" style={{ color: "#1E293B" }}>Heiyo</span>
+              <span className="font-semibold text-base tracking-tight text-foreground">Heiyo</span>
             </div>
-            <span className="text-gray-300 text-sm">/</span>
-            <span className="text-sm font-medium text-slate-600">Demo Workspace</span>
+            <span className="text-muted-foreground/40 text-sm">/</span>
+            <span className="text-sm font-medium text-muted-foreground">Demo Workspace</span>
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-5 text-sm" style={{ color: "#64748B" }}>
+            <div className="flex items-center gap-5 text-sm text-muted-foreground">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setView(item.id)}
-                  className={`transition-colors hover:text-slate-900 ${view === item.id ? "font-semibold text-slate-900" : ""}`}
+                  className={`transition-colors hover:text-foreground ${view === item.id ? "font-semibold text-foreground" : ""}`}
                 >
                   {item.label}
                 </button>
@@ -711,8 +712,9 @@ export function DemoShell() {
               <Plus className="h-3.5 w-3.5" />
               New Ticket
             </button>
+            <ThemeToggle />
             <a href="/sign-up"
-              className="text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors">
+              className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
               Sign up free →
             </a>
           </div>

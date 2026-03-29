@@ -9,6 +9,7 @@ import {
   ShieldIcon,
   SparklesIcon,
 } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default async function Home() {
   const { userId } = await auth()
@@ -26,6 +27,7 @@ export default async function Home() {
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link
               href="/sign-in"
               className="text-sm transition-colors text-muted-foreground hover:text-foreground"
