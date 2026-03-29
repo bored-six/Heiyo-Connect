@@ -38,8 +38,8 @@ An AI-powered multi-tenant SaaS support dashboard. Teams use it to receive, tria
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/your-username/heiyo-connect.git
-cd heiyo-connect
+git clone https://github.com/bored-six/Heiyo-Connect.git
+cd Heiyo-Connect
 pnpm install
 ```
 
@@ -64,8 +64,8 @@ Pusher, Groq, and Mistral keys are optional.
 ### 3. Set up the database
 
 ```bash
-pnpm db:push    # creates schema
-pnpm db:seed    # seeds 3 demo tenants + 50 tickets
+pnpm db:generate   # generates Prisma client
+pnpm db:push       # syncs schema to database
 ```
 
 ### 4. Run
@@ -81,13 +81,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Demo
 
-After seeding, use the **Demo Login** button on the homepage. Three pre-built workspaces are included:
-
-| Workspace | Tickets | Notes |
-|-----------|---------|-------|
-| Acme Corp | 20 | Mix of priorities and statuses |
-| ByteForge | 18 | Mostly technical tickets |
-| NovaSpark | 15 | Billing and onboarding tickets |
+Visit the **[live demo](https://heiyo-connect.vercel.app/demo)** or click **"Try live demo"** on the landing page. The demo is a self-contained client-side dashboard with sample tickets, customers, and analytics — no account or database required.
 
 ---
 
@@ -98,12 +92,14 @@ src/
 ├── app/
 │   ├── (dashboard)/        # Protected routes (auth required)
 │   ├── api/                # API routes (public ticket, Socket.io, AI)
+│   ├── demo/               # Self-contained demo dashboard (no auth)
 │   ├── p/[slug]/           # Public support portal (no auth)
 │   └── join/[slug]/        # Workspace invite landing
 ├── actions/                # Server Actions — all mutations live here
 ├── components/
 │   ├── ui/                 # Shadcn UI primitives
 │   ├── dashboard/          # Dashboard-specific components
+│   ├── demo/               # Demo page components
 │   └── settings/           # Settings tab components
 ├── lib/
 │   ├── tenant.ts           # requireUser() — auth + tenant isolation
@@ -133,7 +129,7 @@ src/
 | `pnpm dev` | Next.js dev server |
 | `pnpm dev:socket` | Dev server with Socket.io |
 | `pnpm build` | Production build |
+| `pnpm db:generate` | Generate Prisma client |
 | `pnpm db:push` | Sync Prisma schema to database |
-| `pnpm db:seed` | Seed demo data |
 | `pnpm db:studio` | Open Prisma Studio |
 | `pnpm lint` | Run ESLint |
